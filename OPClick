@@ -13,9 +13,6 @@ local SettingItem = settingFrame.SettingItem
 -- Get TrainSystem config
 local TrainSystem = game.Players.LocalPlayer.Configuration:WaitForChild("TrainSystem")
 
--- Status awal tombol (Tidak diperlukan lagi karena kita akan membaca status dari atribut)
--- local isEnabled = false
-
 -- Variabel untuk elemen UI
 local pvpSetting
 local toggleBox

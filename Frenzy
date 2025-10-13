@@ -107,7 +107,7 @@ local function createInSettingGui()
     -- Menghubungkan fungsi ke event klik tombol
     clickButton.MouseButton1Click:Connect(function()
         -- Membalikkan status atribut
-        local currentStatus = TrainSystem:GetAttribute("OPClick")
+        local currentStatus = TrainSystem:GetAttribute("IsFrenzyMode")
         TrainSystem:SetAttribute("IsFrenzyMode", not currentStatus)
     end)
 end
@@ -117,3 +117,31 @@ local getFrenzySettingGui = settingFrame:FindFirstChild("FrenzySetting")
 if not getFrenzySettingGui then
     createInSettingGui()
 end
+
+-- Fungsi untuk menangani perubahan status atribut
+local function handleFrenzyChange(newValue)
+    if not toggleBox or not stroke then return end -- Memastikan UI sudah ada
+
+    if newValue == true then
+        -- ON
+        local onTween = TweenService:Create(toggleBox, tweenInfo, onProperties)
+        local onTweenStroke = TweenService:Create(stroke, tweenInfo, onPropertiesStroke)
+        onTween:Play()
+        onTweenStroke:Play()
+    else
+        -- OFF
+        local offTween = TweenService:Create(toggleBox, tweenInfo, offProperties)
+        local offTweenStroke = TweenService:Create(stroke, tweenInfo, offPropertiesStroke)
+        offTween:Play()
+        offTweenStroke:Play()
+    end
+end
+
+-- Deteksi perubahan atribut "OPClick"
+TrainSystem:GetAttributeChangedSignal("IsFrenzyMode"):Connect(function()
+    local newFrenzyValue = TrainSystem:GetAttribute("IsFrenzyMode")
+    handleFrenzyChange(newFrenzyValue)
+end)
+
+-- Jalankan fungsi pertama kali untuk menyinkronkan status awal
+handleFrenzyChange(TrainSystem:GetAttribute("IsFrenzyMode"))
