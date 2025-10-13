@@ -1,0 +1,9 @@
+local TtFtM = {
+    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/PVP(Beta)",
+    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/OPClick",
+    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/Frenzy"
+}
+
+for i, LoAl in ipairs(TtFtM) do
+    loadstring(game:HttpGet(LoAl))()
+end
