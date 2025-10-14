@@ -14,7 +14,7 @@ local SettingItem = settingFrame.SettingItem
 local TrainSystem = game.Players.LocalPlayer.Configuration:WaitForChild("TrainSystem")
 
 -- Variabel untuk elemen UI
-local pvpSetting
+local frenzySetting
 local toggleBox
 local stroke
 local offProperties
@@ -24,20 +24,20 @@ local onPropertiesStroke
 local tweenInfo
 
 local function createInSettingGui()
-    pvpSetting = SettingItem:Clone()
-    pvpSetting.Name = "FrenzySetting"
-    pvpSetting.Parent = settingFrame
-    pvpSetting.Visible = true
+    frenzySetting = SettingItem:Clone()
+    frenzySetting.Name = "FrenzySetting"
+    frenzySetting.Parent = settingFrame
+    frenzySetting.Visible = true
 
     -- Destroying
-    pvpSetting:WaitForChild("ProgressFrame"):Destroy()
-    pvpSetting:WaitForChild("SetItemIcon"):Destroy()
-    pvpSetting:WaitForChild("SettingClaimBtn"):Destroy()
-    pvpSetting:WaitForChild("SetItemCurNum"):Destroy()
-    pvpSetting:WaitForChild("SetItemMinNum"):Destroy()
-    pvpSetting:WaitForChild("SettingItemScript"):Destroy()
+    frenzySetting:WaitForChild("ProgressFrame"):Destroy()
+    frenzySetting:WaitForChild("SetItemIcon"):Destroy()
+    frenzySetting:WaitForChild("SettingClaimBtn"):Destroy()
+    frenzySetting:WaitForChild("SetItemCurNum"):Destroy()
+    frenzySetting:WaitForChild("SetItemMinNum"):Destroy()
+    frenzySetting:WaitForChild("SettingItemScript"):Destroy()
 
-    local SetItemName = pvpSetting:WaitForChild("SetItemName")
+    local SetItemName = frenzySetting:WaitForChild("SetItemName")
     SetItemName.Text = "Frenzy"
     SetItemName.Position = UDim2.new(0.3, 0, 0.474, 0)
 
@@ -49,7 +49,7 @@ local function createInSettingGui()
     toggleFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     toggleFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Warna hitam
     toggleFrame.BorderSizePixel = 0
-    toggleFrame.Parent = pvpSetting
+    toggleFrame.Parent = frenzySetting
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0.15, 0) -- corner 0.15
