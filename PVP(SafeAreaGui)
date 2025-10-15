@@ -34,7 +34,7 @@ local function createInSafeAreaGui(parentName)
 	local clickButton = Instance.new("TextButton")
 	clickButton.Name = "ButtonArea"
 	clickButton.AnchorPoint = Vector2.new(0.5, 0.5)
-	clickButton.Size = UDim2.new(pvpAreaBg.Size.X.Scale, pvpAreaBg.Size.X.Offset, pvpAreaBg.Size.Y.Scale * 2, pvpAreaBg.Size.Y.Offset) -- Sebesar Bg SafeAreaGui
+	clickButton.Size = UDim2.new(pvpAreaBg.Size.X.Scale, pvpAreaBg.Size.X.Offset, pvpAreaBg.Size.Y.Scale * 3, pvpAreaBg.Size.Y.Offset) -- Sebesar Bg SafeAreaGui
 	clickButton.Position = pvpAreaBg.Position -- Posisi yang sama dengan Bg
 	clickButton.BackgroundTransparency = 1 -- Transparansi
 	clickButton.Text = "" -- Tidak ada teks
