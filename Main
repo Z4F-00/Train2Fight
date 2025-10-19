@@ -2,7 +2,8 @@ local TtFtM = {
     "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/PVP",
     "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/OPClick",
     "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/Frenzy",
-    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/PVP(SafeAreaGui)"
+    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/PVP(SafeAreaGui)",
+    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/ShowPlayerPower"
 }
 
 for i, LoAl in ipairs(TtFtM) do
