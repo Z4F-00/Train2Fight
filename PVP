@@ -29,7 +29,7 @@ function invokePVP(PVPType)
 end
 
 -- Teks PVP
-local pvpAreaGui = PlayerGui:WaitForChild("SafeAreaGui"):WaitForChild("ContentFrame"):WaitForChild("On")
+local pvpAreaGuiOn = PlayerGui:WaitForChild("SafeAreaGui"):WaitForChild("ContentFrame"):WaitForChild("On")
 
 -- Variabel untuk elemen UI
 local pvpSetting
@@ -121,9 +121,9 @@ local function createInSettingGui()
 
 	-- Menghubungkan fungsi ke event klik tombol
 	clickButton.MouseButton1Click:Connect(function()
-		local currentStatus = pvpAreaGui.Visible
+		local currentStatus = pvpAreaGuiOn.Visible
 		invokePVP(not currentStatus)
-		pvpAreaGui.Visible = not currentStatus
+		pvpAreaGuiOn.Visible = not currentStatus
 	end)
 end
 
@@ -152,11 +152,11 @@ local function handlePVPChange(newValue)
 	end
 end
 
--- Deteksi perubahan atribut "Visible"
-pvpAreaGui:GetPropertyChangedSignal("Visible"):Connect(function()
-	local newPVPValue = pvpAreaGui.Visible
+-- Deteksi perubahan properti "Visible"
+pvpAreaGuiOn:GetPropertyChangedSignal("Visible"):Connect(function()
+	local newPVPValue = pvpAreaGuiOn.Visible
 	handlePVPChange(newPVPValue)
 end)
 
 -- Jalankan fungsi pertama kali untuk menyinkronkan status awal
-handlePVPChange(pvpAreaGui.Visible)
+handlePVPChange(pvpAreaGuiOn.Visible)
