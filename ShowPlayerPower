@@ -1,0 +1,237 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local localPlayer = Players.LocalPlayer
+local PlayerGui = localPlayer:WaitForChild("PlayerGui")
+
+-- Fungsi untuk mengkonversi angka menjadi string dengan akhiran
+function suffixValue(number)
+    local absNumber = math.abs(number)
+    local suffixes = {"", "K", "M", "B", "T", "QA", "Qi", "aa", "ab", "ac", "ad", "ae", "af", "ag", "ah",  "ai"}
+    local i = 1
+
+    -- Jika angka melebihi batas akhiran, gunakan notasi ilmiah
+    if absNumber >= 1000^#suffixes then
+        local formattedString = string.format("%.2e", number)
+        return formattedString
+    end
+
+    -- Jika tidak, gunakan sistem akhiran yang sudah ada
+    while absNumber >= 1000 and i < #suffixes do
+        absNumber = absNumber / 1000
+        i = i + 1
+    end
+
+    local formattedString = string.format("%.2f", absNumber)
+    -- Hapus desimal dan nol yang tidak perlu
+    if string.find(formattedString, "%.00$") then
+        formattedString = string.gsub(formattedString, "%.00$", "")
+    elseif string.find(formattedString, "%.0$") then
+        formattedString = string.gsub(formattedString, "%.0$", "")
+    end
+    
+    local finalString = formattedString .. " " .. suffixes[i]
+
+    if number < 0 then
+        return "-" .. finalString
+    else
+        return finalString
+    end
+end
+
+-- Fungsi untuk mendapatkan atribut sistem kereta dari pemain
+function TrainSystemGetAttribute(player, AttributeName)
+    local config = player:FindFirstChild("Configuration")
+    if config then
+        local trainSystem = config:FindFirstChild("TrainSystem")
+        if trainSystem then
+            return trainSystem:GetAttribute(AttributeName) or 0
+        end
+    end
+    warn("Configuration atau TrainSystem tidak ditemukan untuk " .. player.Name)
+    return 0
+end
+
+-- Fungsi untuk memperbarui teks kekuatan
+local function updatePowerText(player, powerNum)
+    local playerPower = TrainSystemGetAttribute(player, "1") + TrainSystemGetAttribute(player, "2") + TrainSystemGetAttribute(player, "3") + TrainSystemGetAttribute(player, "4")
+    powerNum.Text = suffixValue(playerPower)
+end
+
+-- Fungsi untuk membuat tag kekuatan di atas kepala pemain
+local function createTag(player)
+    if player == localPlayer then
+        return
+    end
+
+    local character = player.Character or player.CharacterAdded:Wait()
+    local head = character:WaitForChild("Head")
+    
+    if not head:FindFirstChild("playerTagGui") then
+        local localMainGui = PlayerGui:WaitForChild("MainGui")
+        local localPowerArea = localMainGui:WaitForChild("LeftFrame"):WaitForChild("LeftButtonArea"):WaitForChild("PowerArea")
+        local playerPower = TrainSystemGetAttribute(player, "1") + TrainSystemGetAttribute(player, "2") + TrainSystemGetAttribute(player, "3") + TrainSystemGetAttribute(player, "4")
+        
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "playerTagGui"
+        billboard.Adornee = head
+        billboard.Size = UDim2.new(8, 0, 4, 0)
+        billboard.StudsOffset = Vector3.new(0, 0, 0)
+        billboard.AlwaysOnTop = true
+        billboard.MaxDistance = 200
+        billboard.Parent = head
+        
+        billboard.Enabled = localPlayer.Configuration.TrainSystem:GetAttribute("ShowPowerTags") or false
+
+        local clonedPowerGui = localPowerArea:Clone()
+        clonedPowerGui.Name = "powerGui"
+        clonedPowerGui.Position = UDim2.new(0, 0, 0, 0)
+        clonedPowerGui.AnchorPoint = Vector2.new(0, 0)
+        clonedPowerGui.Size = UDim2.new(1, 0, 1, 0)
+        clonedPowerGui.Visible = true
+        
+        local powerNum = clonedPowerGui:WaitForChild("PowerButton"):WaitForChild("PowerNum")
+        powerNum.Text = suffixValue(playerPower)
+        clonedPowerGui.Parent = billboard
+        
+        local trainSystem = player:WaitForChild("Configuration"):WaitForChild("TrainSystem")
+
+        trainSystem:GetAttributeChangedSignal("1"):Connect(function()
+            updatePowerText(player, powerNum)
+        end)
+        trainSystem:GetAttributeChangedSignal("2"):Connect(function()
+            updatePowerText(player, powerNum)
+        end)
+        trainSystem:GetAttributeChangedSignal("3"):Connect(function()
+            updatePowerText(player, powerNum)
+        end)
+        trainSystem:GetAttributeChangedSignal("4"):Connect(function()
+            updatePowerText(player, powerNum)
+        end)
+
+        localPlayer.Configuration.TrainSystem:GetAttributeChangedSignal("ShowPowerTags"):Connect(function()
+            billboard.Enabled = localPlayer.Configuration.TrainSystem:GetAttribute("ShowPowerTags")
+        end)
+    end
+end
+
+-- Logika untuk pengaturan di GUI
+local function createInSettingGui()
+    local settingFrame = PlayerGui:WaitForChild("SettingGui"):WaitForChild("ContentFrame"):WaitForChild("SettingFrame"):WaitForChild("SettingScrolling")
+    settingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    settingFrame.ScrollBarThickness = 0
+
+    local SettingItem = settingFrame:WaitForChild("SettingItem")
+    local TrainSystem = Players.LocalPlayer.Configuration:WaitForChild("TrainSystem")
+    local powerTagSetting = SettingItem:Clone()
+    powerTagSetting.Name = "PowerTagSetting"
+    powerTagSetting.Parent = settingFrame
+    powerTagSetting.Visible = true
+
+    for _, child in pairs(powerTagSetting:GetChildren()) do
+        if child.Name ~= "SetItemName" and child.Name ~= "UIPadding" then
+            child:Destroy()
+        end
+    end
+
+    local SetItemName = powerTagSetting:WaitForChild("SetItemName")
+    SetItemName.Text = "Show Player Power"
+    SetItemName.Position = UDim2.new(0.3, 0, 0.474, 0)
+
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Name = "ToggleFrame"
+    toggleFrame.Size = UDim2.new(0.15, 0, 0.553, 0)
+    toggleFrame.Position = UDim2.new(0.85, 0, 0.5, 0)
+    toggleFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    toggleFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    toggleFrame.BorderSizePixel = 0
+    toggleFrame.Parent = powerTagSetting
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.15, 0)
+    corner.Parent = toggleFrame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.new(1, 1, 1)
+    stroke.Transparency = 0.5
+    stroke.Thickness = 1.2
+    stroke.Parent = toggleFrame
+
+    local toggleBox = Instance.new("Frame")
+    toggleBox.Name = "ToggleBox"
+    toggleBox.Size = UDim2.new(0.49, 0, 0.8, 0)
+    toggleBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    toggleBox.BackgroundColor3 = Color3.new(1, 1, 1)
+    toggleBox.BorderSizePixel = 0
+    toggleBox.Parent = toggleFrame
+
+    local cornerToggleBox = corner:Clone()
+    cornerToggleBox.CornerRadius = UDim.new(0.1)
+    cornerToggleBox.Parent = toggleBox
+
+    local clickButton = Instance.new("TextButton")
+    clickButton.Name = "ClickButton"
+    clickButton.Size = UDim2.new(1, 0, 1, 0)
+    clickButton.BackgroundTransparency = 1
+    clickButton.Text = ""
+    clickButton.Parent = toggleFrame
+
+    local offProperties = {
+        Position = UDim2.new(0.05, 0, 0.1, 0),
+        BackgroundColor3 = Color3.new(1, 1, 1)
+    }
+    local onProperties = {
+        Position = UDim2.new(0.465, 0, 0.1, 0),
+        BackgroundColor3 = Color3.new(1, 248/255, 45/255)
+    }
+
+    local offPropertiesStroke = {
+        Color = Color3.new(1, 1, 1)
+    }
+    local onPropertiesStroke = {
+        Color = Color3.new(1, 248/255, 45/255)
+    }
+
+    local tweenInfo = TweenInfo.new(1/30*5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+    clickButton.MouseButton1Click:Connect(function()
+        local currentStatus = TrainSystem:GetAttribute("ShowPowerTags")
+        TrainSystem:SetAttribute("ShowPowerTags", not currentStatus)
+    end)
+    
+    local function handlePowerTagChange(newValue)
+        if newValue == true then
+            local onTween = TweenService:Create(toggleBox, tweenInfo, onProperties)
+            local onTweenStroke = TweenService:Create(stroke, tweenInfo, onPropertiesStroke)
+            onTween:Play()
+            onTweenStroke:Play()
+        else
+            local offTween = TweenService:Create(toggleBox, tweenInfo, offProperties)
+            local offTweenStroke = TweenService:Create(stroke, tweenInfo, offPropertiesStroke)
+            offTween:Play()
+            offTweenStroke:Play()
+        end
+    end
+    
+    TrainSystem:GetAttributeChangedSignal("ShowPowerTags"):Connect(function()
+        local newPowerTagValue = TrainSystem:GetAttribute("ShowPowerTags")
+        handlePowerTagChange(newPowerTagValue)
+    end)
+
+    TrainSystem:SetAttribute("ShowPowerTags", TrainSystem:GetAttribute("ShowPowerTags") or false)
+    handlePowerTagChange(TrainSystem:GetAttribute("ShowPowerTags"))
+end
+
+-- Hubungkan ke event PlayerAdded untuk menangani pemain yang baru bergabung
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        createTag(player)
+    end)
+end)
+
+-- Panggil createTag untuk pemain yang sudah ada saat skrip pertama kali berjalan
+for _, player in ipairs(Players:GetPlayers()) do
+    createTag(player)
+end
+
+-- Panggil fungsi untuk membuat GUI pengaturan
+createInSettingGui()
