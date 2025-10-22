@@ -30,12 +30,11 @@ local function createInSettingGui()
     frenzySetting.Visible = true
 
     -- Destroying
-    frenzySetting:WaitForChild("ProgressFrame"):Destroy()
-    frenzySetting:WaitForChild("SetItemIcon"):Destroy()
-    frenzySetting:WaitForChild("SettingClaimBtn"):Destroy()
-    frenzySetting:WaitForChild("SetItemCurNum"):Destroy()
-    frenzySetting:WaitForChild("SetItemMinNum"):Destroy()
-    frenzySetting:WaitForChild("SettingItemScript"):Destroy()
+    for _, child in pairs(frenzySetting:GetChildren()) do
+        if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then
+            child:Destroy()
+        end
+    end
 
     local SetItemName = frenzySetting:WaitForChild("SetItemName")
     SetItemName.Text = "Frenzy"
@@ -99,7 +98,7 @@ local function createInSettingGui()
         Color = Color3.new(1, 248/255, 45/255)
     }
 
-    tweenInfo = TweenInfo.new(1/30*5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    tweenInfo = TweenInfo.new(0.167, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
     -- Menghubungkan fungsi ke event klik tombol
     clickButton.MouseButton1Click:Connect(function()
@@ -134,7 +133,7 @@ local function handleFrenzyChange(newValue)
     end
 end
 
--- Deteksi perubahan atribut "OPClick"
+-- Deteksi perubahan atribut "IsFrenzyMode"
 TrainSystem:GetAttributeChangedSignal("IsFrenzyMode"):Connect(function()
     local newFrenzyValue = TrainSystem:GetAttribute("IsFrenzyMode")
     handleFrenzyChange(newFrenzyValue)

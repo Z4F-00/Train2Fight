@@ -127,8 +127,8 @@ local function createInSettingGui()
     powerTagSetting.Parent = settingFrame
     powerTagSetting.Visible = true
 
-    for _, child in pairs(powerTagSetting:GetChildren()) do
-        if child.Name ~= "SetItemName" and child.Name ~= "UIPadding" then
+    for _, child in pairs(serverTrainSetting:GetChildren()) do
+        if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then
             child:Destroy()
         end
     end
@@ -191,7 +191,7 @@ local function createInSettingGui()
         Color = Color3.new(1, 248/255, 45/255)
     }
 
-    local tweenInfo = TweenInfo.new(1/30*5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tweenInfo = TweenInfo.new(0.167, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
     clickButton.MouseButton1Click:Connect(function()
         local currentStatus = TrainSystem:GetAttribute("ShowPowerTags")

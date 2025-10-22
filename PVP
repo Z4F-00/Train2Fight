@@ -48,12 +48,11 @@ local function createInSettingGui()
 	pvpSetting.Visible = true
 
 	-- Destroying unnecessary elements
-	pvpSetting.ProgressFrame:Destroy()
-	pvpSetting.SetItemIcon:Destroy()
-	pvpSetting.SettingClaimBtn:Destroy()
-	pvpSetting.SetItemCurNum:Destroy()
-	pvpSetting.SetItemMinNum:Destroy()
-	pvpSetting.SettingItemScript:Destroy()
+	for _, child in pairs(pvpSetting:GetChildren()) do
+        if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then
+            child:Destroy()
+        end
+    end
 
 	local SetItemName = pvpSetting:WaitForChild("SetItemName")
 	SetItemName.Text = "PVP"
@@ -117,7 +116,7 @@ local function createInSettingGui()
 		Color = Color3.new(1, 248/255, 45/255)
 	}
 
-	tweenInfo = TweenInfo.new(1/30*5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	tweenInfo = TweenInfo.new(0.167, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 	-- Menghubungkan fungsi ke event klik tombol
 	clickButton.MouseButton1Click:Connect(function()

@@ -2,6 +2,8 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local ReplicatedStorage= game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local settingFrame = PlayerGui:WaitForChild("SettingGui"):WaitForChild("ContentFrame"):WaitForChild("SettingFrame"):WaitForChild("SettingScrolling")
 settingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -13,8 +15,17 @@ local SettingItem = settingFrame.SettingItem
 -- Get TrainSystem config
 local TrainSystem = game.Players.LocalPlayer.Configuration:WaitForChild("TrainSystem")
 
+-- Tambahkan variabel untuk koneksi Heartbeat
+local heartbeatConnection
+
+-- Variable loop
+local loopStatus
+
+-- Remote
+local applyStationaryTrainRemote = ReplicatedStorage:WaitForChild("TrainEquipment"):WaitForChild("Remote"):WaitForChild("ApplyStationaryTrain")
+
 -- Variabel untuk elemen UI
-local opClickSetting
+local serverTrainSetting
 local toggleBox
 local stroke
 local offProperties
@@ -24,20 +35,20 @@ local onPropertiesStroke
 local tweenInfo
 
 local function createInSettingGui()
-    opClickSetting = SettingItem:Clone()
-    opClickSetting.Name = "OPClickSetting"
-    opClickSetting.Parent = settingFrame
-    opClickSetting.Visible = true
+    serverTrainSetting = SettingItem:Clone()
+    serverTrainSetting.Name = "ServerTrainSetting"
+    serverTrainSetting.Parent = settingFrame
+    serverTrainSetting.Visible = true
 
     -- Destroying
-    for _, child in pairs(opClickSetting:GetChildren()) do
+    for _, child in pairs(serverTrainSetting:GetChildren()) do
         if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then
             child:Destroy()
         end
     end
 
-    local SetItemName = opClickSetting:WaitForChild("SetItemName")
-    SetItemName.Text = "OPClick"
+    local SetItemName = serverTrainSetting:WaitForChild("SetItemName")
+    SetItemName.Text = "Server Train"
     SetItemName.Position = UDim2.new(0.3, 0, 0.474, 0)
 
     -- Membuat Frame (bingkai luar) sebagai latar belakang tombol
@@ -48,7 +59,7 @@ local function createInSettingGui()
     toggleFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     toggleFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Warna hitam
     toggleFrame.BorderSizePixel = 0
-    toggleFrame.Parent = opClickSetting
+    toggleFrame.Parent = serverTrainSetting
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0.15, 0) -- corner 0.15
@@ -103,20 +114,20 @@ local function createInSettingGui()
     -- Menghubungkan fungsi ke event klik tombol
     clickButton.MouseButton1Click:Connect(function()
         -- Membalikkan status atribut
-        local currentStatus = TrainSystem:GetAttribute("OPClick")
-        TrainSystem:SetAttribute("OPClick", not currentStatus)
+        local currentStatus = TrainSystem:GetAttribute("IsServerTrain")
+        TrainSystem:SetAttribute("IsServerTrain", not currentStatus)
     end)
 end
 
-local getOPClickSettingGui = settingFrame:FindFirstChild("OPClickSetting")
+local getServerTrainSettingGui = settingFrame:FindFirstChild("ServerTrainSetting")
 
-if not getOPClickSettingGui then
+if not getServerTrainSettingGui then
     createInSettingGui()
 end
 
 -- Fungsi untuk menangani perubahan status atribut
-local function handleOPClickChange(newValue)
-    if not toggleBox or not stroke then return end -- Memastikan UI sudah ada
+local function handleSeverTrainChange(newValue)
+    if not toggleBox or not stroke then return end
 
     if newValue == true then
         -- ON
@@ -124,20 +135,35 @@ local function handleOPClickChange(newValue)
         local onTweenStroke = TweenService:Create(stroke, tweenInfo, onPropertiesStroke)
         onTween:Play()
         onTweenStroke:Play()
+        
+        if not heartbeatConnection then
+            heartbeatConnection = RunService.Heartbeat:Connect(function()
+                applyStationaryTrainRemote:InvokeServer()
+            end)
+        end
+
     else
         -- OFF
         local offTween = TweenService:Create(toggleBox, tweenInfo, offProperties)
         local offTweenStroke = TweenService:Create(stroke, tweenInfo, offPropertiesStroke)
         offTween:Play()
         offTweenStroke:Play()
+
+        -- Hentikan loop Heartbeat
+        if heartbeatConnection then
+            heartbeatConnection:Disconnect()
+            heartbeatConnection = nil
+        end
     end
 end
 
--- Deteksi perubahan atribut "OPClick"
-TrainSystem:GetAttributeChangedSignal("OPClick"):Connect(function()
-    local newOPClickValue = TrainSystem:GetAttribute("OPClick")
-    handleOPClickChange(newOPClickValue)
+-- Deteksi perubahan atribut "IsServerTrain"
+TrainSystem:GetAttributeChangedSignal("IsServerTrain"):Connect(function()
+    local newServerTrainValue = TrainSystem:GetAttribute("IsServerTrain")
+    handleSeverTrainChange(newServerTrainValue)
 end)
 
 -- Jalankan fungsi pertama kali untuk menyinkronkan status awal
-handleOPClickChange(TrainSystem:GetAttribute("OPClick"))
+local initialStatus = TrainSystem:GetAttribute("IsServerTrain") or false
+TrainSystem:SetAttribute("IsServerTrain", initialStatus)
+handleSeverTrainChange(initialStatus)
