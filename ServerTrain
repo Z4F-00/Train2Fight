@@ -48,7 +48,7 @@ local function createInSettingGui()
     end
 
     local SetItemName = serverTrainSetting:WaitForChild("SetItemName")
-    SetItemName.Text = "Server Train"
+    SetItemName.Text = "Server Train(Frenzy = OP)"
     SetItemName.Position = UDim2.new(0.3, 0, 0.474, 0)
 
     -- Membuat Frame (bingkai luar) sebagai latar belakang tombol
