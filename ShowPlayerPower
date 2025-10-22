@@ -127,7 +127,7 @@ local function createInSettingGui()
     powerTagSetting.Parent = settingFrame
     powerTagSetting.Visible = true
 
-    for _, child in pairs(serverTrainSetting:GetChildren()) do
+    for _, child in pairs(powerTagSetting:GetChildren()) do
         if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then
             child:Destroy()
         end
