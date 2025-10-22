@@ -125,7 +125,7 @@ local function createPowerTagsSettingGui()
     end
 
     local SetItemName = powerTagsSetting:WaitForChild("SetItemName")
-    SetItemName.Text = "Show Player Tags" -- Ubah teks di sini
+    SetItemName.Text = "Show Player Power"
     SetItemName.Position = UDim2.new(0.3, 0, 0.474, 0)
 
     -- Membuat Frame (bingkai luar) sebagai latar belakang tombol
