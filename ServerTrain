@@ -22,7 +22,10 @@ local heartbeatConnection
 local loopStatus
 
 -- Remote
-local applyStationaryTrainRemote = ReplicatedStorage:WaitForChild("TrainEquipment"):WaitForChild("Remote"):WaitForChild("ApplyStationaryTrain")
+local trainEquipmentRemote = ReplicatedStorage:WaitForChild("TrainEquipment"):WaitForChild("Remote")
+local applyStationaryTrainRemote = trainEquipmentRemote:WaitForChild("ApplyStationaryTrain")
+local applyMobileTrainRemote = trainEquipmentRemote:WaitForChild("ApplyMobileTrain")
+
 
 -- Variabel untuk elemen UI
 local serverTrainSetting
@@ -139,6 +142,7 @@ local function handleSeverTrainChange(newValue)
         if not heartbeatConnection then
             heartbeatConnection = RunService.Heartbeat:Connect(function()
                 applyStationaryTrainRemote:InvokeServer()
+                applyMobileTrainRemote:InvokeServer()
             end)
         end
 
