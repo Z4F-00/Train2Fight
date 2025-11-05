@@ -76,10 +76,10 @@ local function updateSlider(inputPosition: Vector2)
     line.Size = UDim2.new(percentage, 0, line.Size.Y.Scale, 0)
     
     -- Minimum speed
-    minimum = percentage * (100 - setItemMinNumText2Num) + setItemMinNumText2Num
+    local minimum = percentage * (100 - setItemMinNumText2Num) + setItemMinNumText2Num
     
     -- Floor
-    flooredMinimum = math.floor(minimum + 0.5)
+    local flooredMinimum = math.floor(minimum + 0.5)
     
     -- Memperbarui teks angka (dibulatkan ke bilangan bulat terdekat)
     setItemCurNum.Text = tostring(flooredMinimum)
@@ -119,9 +119,14 @@ end)
 
 -- Menginisialisasi slider ke posisi awal
 local initialPercentage = trainSystem:GetAttribute("PlayerSpeed")/100
-sliderFrame.Position = UDim2.new(initialPercentage, 0, sliderFrame.Position.Y.Scale, 0)
+local initialMinimum = initialPercentage * (100 - setItemMinNumText2Num) + setItemMinNumText2Num
+    
+-- Floor
+initialFlooredMinimum = math.floor(initialMinimum + 0.5)
+    
+sliderFrame.Position = UDim2.new(initialFlooredMinimum, 0, sliderFrame.Position.Y.Scale, 0)
 line.Size = UDim2.new(initialPercentage, 0, line.Size.Y.Scale, 0)
-setItemCurNum.Text = tostring(initialPercentage)
+setItemCurNum.Text = tostring(initialFlooredMinimum)
 
 -- WalkSpeed
 RunService.Heartbeat:Connect(function()
