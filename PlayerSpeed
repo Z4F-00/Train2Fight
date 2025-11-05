@@ -118,7 +118,7 @@ UserInputService.InputEnded:Connect(function(input: InputObject)
 end)
 
 -- Menginisialisasi slider ke posisi awal
-local initialPercentage = trainSystem:GetAttribute("PlayerSpeed")
+local initialPercentage = trainSystem:GetAttribute("PlayerSpeed")/100
 sliderFrame.Position = UDim2.new(initialPercentage, 0, sliderFrame.Position.Y.Scale, 0)
 line.Size = UDim2.new(initialPercentage, 0, line.Size.Y.Scale, 0)
 setItemCurNum.Text = tostring(initialPercentage)
