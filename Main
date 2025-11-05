@@ -1,10 +1,13 @@
+local mainBranch = "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main"
+
 local TtFtM = {
-    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/PVP(SafeAreaGui)",
-    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/ShowPlayerPower",
-    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/GhostTrain",
-    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/Frenzy",
-    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/OPClick",
-    "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/PVP"
+    mainBranch .. "/PlayerSpeed",
+    mainBranch .. "/PVP(SafeAreaGui)",
+    mainBranch .. "/ShowPlayerPower",
+    mainBranch .. "/GhostTrain",
+    mainBranch .. "/Frenzy",
+    mainBranch .. "/OPClick",
+    mainBranch .. "/PVP"
 }
 
 for i, LoAl in ipairs(TtFtM) do
