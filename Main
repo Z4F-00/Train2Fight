@@ -2,6 +2,7 @@ local mainBranch = "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/he
 
 local TtFtM = {
     mainBranch .. "/PlayerSpeed",
+    mainBranch .. "/AntiAfk",
     mainBranch .. "/PVP(SafeAreaGui)",
     mainBranch .. "/ShowPlayerPower",
     mainBranch .. "/GhostTrain",
