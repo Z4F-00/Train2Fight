@@ -118,13 +118,10 @@ UserInputService.InputEnded:Connect(function(input: InputObject)
 end)
 
 -- Menginisialisasi slider ke posisi awal
-local initialPercentage = trainSystem:GetAttribute("PlayerSpeed")/100
+local initialPercentage = (trainSystem:GetAttribute("PlayerSpeed") - setItemMinNumText2Num)/100
 local initialMinimum = initialPercentage * (100 - setItemMinNumText2Num) + setItemMinNumText2Num
-    
--- Floor
 initialFlooredMinimum = math.floor(initialMinimum + 0.5)
-    
-sliderFrame.Position = UDim2.new(initialFlooredMinimum, 0, sliderFrame.Position.Y.Scale, 0)
+sliderFrame.Position = UDim2.new(initialPercentage, 0, sliderFrame.Position.Y.Scale, 0)
 line.Size = UDim2.new(initialPercentage, 0, line.Size.Y.Scale, 0)
 setItemCurNum.Text = tostring(initialFlooredMinimum)
 
