@@ -243,8 +243,7 @@ local function createTag(player)
         clonedPowerGui.AnchorPoint = Vector2.new(0, 0)
         clonedPowerGui.Size = UDim2.new(1, 0, 1, 0)
         
-        local initialVisibility = isPowerTagsActive or pvpAreaGuiOn.Visible
-        clonedPowerGui.Visible = initialVisibility
+        clonedPowerGui.Visible = isPowerTagsActive
         
         local powerNum = clonedPowerGui:WaitForChild("PowerButton"):WaitForChild("PowerNum")
         updatePowerText(player, powerNum)
@@ -255,7 +254,9 @@ local function createTag(player)
         local function setupAttributeListeners()
             for i = 1, 4 do
                 trainSystem:GetAttributeChangedSignal(tostring(i)):Connect(function()
-                    updatePowerText(player, powerNum)
+                    if isPowerTagsActive then 
+                        updatePowerText(player, powerNum)
+                    end
                 end)
             end
         end
