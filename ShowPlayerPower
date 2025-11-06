@@ -10,8 +10,8 @@ local SettingItem = settingFrame:WaitForChild("SettingItem")
 settingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 settingFrame.ScrollBarThickness = 0
 
--- Variabel global untuk status PowerTags
-local isPowerTagsActive = false
+-- PowerTags Status
+local isPowerTagsActive = true
 
 -- Variabel untuk UI PowerTags
 local powerTagsSetting
@@ -25,7 +25,7 @@ local tweenInfo
 
 function suffixValue(number)
     local absNumber = math.abs(number)
-    local suffixes = {"", "K", "M", "B", "T", "QA", "Qi", "aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai"}
+    local suffixes = {"", "K", "M", "B", "T", "QA", "Qi", "aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "op", "aq", "ar", "as", "at", "au", "av", "aw", "ax", "ay", "az"}
     local i = 1
 
     if absNumber >= 1000^#suffixes then
@@ -65,8 +65,33 @@ function TrainSystemGetAttribute(player, AttributeName)
 end
 
 local function updatePowerText(player, powerNum)
-    local playerPower = TrainSystemGetAttribute(player, "1") + TrainSystemGetAttribute(player, "2") + TrainSystemGetAttribute(player, "3") + TrainSystemGetAttribute(player, "4")
-    powerNum.Text = suffixValue(playerPower)
+    -- Set power
+    local function calculateTotalPower(p)
+        return TrainSystemGetAttribute(p, "1") + 
+               TrainSystemGetAttribute(p, "2") + 
+               TrainSystemGetAttribute(p, "3") + 
+               TrainSystemGetAttribute(p, "4")
+    end
+    local otherPower = calculateTotalPower(player)
+    local playerPower = calculateTotalPower(LocalPlayer)
+    powerNum.Text = suffixValue(otherPower)
+    
+    -- Power color
+    local white = Color3.new(1, 1, 1)
+    local green = Color3.fromRGB(174, 255, 0)
+    local black = Color3.fromRGB(0, 0, 0)
+    local ratio = 1
+    local powerColor
+    if playerPower > otherPower then
+        ratio = otherPower / playerPower
+        powerColor = green:Lerp(white, ratio)
+    elseif otherPower > playerPower then
+        ratio = playerPower / otherPower
+        powerColor = black:Lerp(white, ratio)
+    else
+        powerColor = white
+    end
+    powerNum.TextColor3 = powerColor
 end
 
 local pvpAreaGuiOn = PlayerGui:WaitForChild("SafeAreaGui"):WaitForChild("ContentFrame"):WaitForChild("On")
@@ -88,7 +113,7 @@ local function setPowerTagVisibility(visible)
     end
 end
 
--- Fungsi untuk menangani perubahan status PowerTags
+-- Handle func
 local function handlePowerTagsChange(newValue)
     if not toggleBox or not stroke then return end
 
@@ -168,20 +193,21 @@ local function createPowerTagsSettingGui()
     clickButton.Text = ""
     clickButton.Parent = toggleFrame
 
+    -- Animate
     offProperties = {
         Position = UDim2.new(0.05, 0, 0.1, 0),
         BackgroundColor3 = Color3.new(1, 1, 1)
     }
     onProperties = {
         Position = UDim2.new(0.465, 0, 0.1, 0),
-        BackgroundColor3 = Color3.new(1, 248/255, 45/255)
+        BackgroundColor3 = Color3.fromRGB(255, 248, 45)
     }
 
     offPropertiesStroke = {
         Color = Color3.new(1, 1, 1)
     }
     onPropertiesStroke = {
-        Color = Color3.new(1, 248/255, 45/255)
+        Color = Color3.fromRGB(255, 248, 45)
     }
 
     tweenInfo = TweenInfo.new(0.167, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -234,34 +260,26 @@ local function createTag(player)
             end
         end
         setupAttributeListeners()
-
-        pvpAreaGuiOn:GetPropertyChangedSignal("Visible"):Connect(function()
-            if isPowerTagsActive then
-                clonedPowerGui.Visible = true
-            else
-                clonedPowerGui.Visible = pvpAreaGuiOn.Visible
-            end
-        end)
     end
 end
 
--- Hubungkan ke event PlayerAdded untuk menangani pemain yang baru bergabung
+-- Player Added
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
         createTag(player)
     end)
 end)
 
--- Panggil createTag untuk pemain yang sudah ada saat skrip pertama kali berjalan
+-- First createTag
 for _, player in ipairs(Players:GetPlayers()) do
     createTag(player)
 end
 
--- Buat GUI PowerTags jika belum ada
+-- GUI PowerTags
 local getPowerTagsSettingGui = settingFrame:FindFirstChild("PowerTagsSetting")
 if not getPowerTagsSettingGui then
     createPowerTagsSettingGui()
 end
 
--- Perbarui visibilitas tag kekuatan saat awal
+-- Handle
 handlePowerTagsChange(isPowerTagsActive)

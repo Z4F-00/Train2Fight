@@ -13,13 +13,10 @@ settingFrame.ScrollBarThickness = 0
 local SettingItem = settingFrame.SettingItem
 
 -- Get TrainSystem config
-local TrainSystem = game.Players.LocalPlayer.Configuration:WaitForChild("TrainSystem")
+local TrainSystem = LocalPlayer.Configuration:WaitForChild("TrainSystem")
 
 -- Tambahkan variabel untuk koneksi Heartbeat
 local heartbeatConnection
-
--- Variable loop
-local loopStatus
 
 -- Remote
 local trainEquipmentRemote = ReplicatedStorage:WaitForChild("TrainEquipment"):WaitForChild("Remote")
@@ -95,21 +92,21 @@ local function createInSettingGui()
     clickButton.Text = "" -- Tidak ada teks
     clickButton.Parent = toggleFrame
 
-    -- Properti animasi untuk status ON dan OFF
+    -- Animate
     offProperties = {
         Position = UDim2.new(0.05, 0, 0.1, 0),
-        BackgroundColor3 = Color3.new(1, 1, 1) -- Putih
+        BackgroundColor3 = Color3.new(1, 1, 1)
     }
     onProperties = {
         Position = UDim2.new(0.465, 0, 0.1, 0),
-        BackgroundColor3 = Color3.new(1, 248/255, 45/255) -- Kuning
+        BackgroundColor3 = Color3.fromRGB(255, 248, 45)
     }
 
     offPropertiesStroke = {
         Color = Color3.new(1, 1, 1)
     }
     onPropertiesStroke = {
-        Color = Color3.new(1, 248/255, 45/255)
+        Color = Color3.fromRGB(255, 248, 45)
     }
 
     tweenInfo = TweenInfo.new(0.167, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -129,7 +126,7 @@ if not getGhostTrainSettingGui then
 end
 
 -- Fungsi untuk menangani perubahan status atribut
-local function handleSeverTrainChange(newValue)
+local function handleGhostTrainChange(newValue)
     if not toggleBox or not stroke then return end
 
     if newValue == true then
@@ -164,10 +161,10 @@ end
 -- Deteksi perubahan atribut "IsGhostTrain"
 TrainSystem:GetAttributeChangedSignal("IsGhostTrain"):Connect(function()
     local newGhostTrainValue = TrainSystem:GetAttribute("IsGhostTrain")
-    handleSeverTrainChange(newGhostTrainValue)
+    handleGhostTrainChange(newGhostTrainValue)
 end)
 
 -- Jalankan fungsi pertama kali untuk menyinkronkan status awal
 local initialStatus = TrainSystem:GetAttribute("IsGhostTrain") or false
 TrainSystem:SetAttribute("IsGhostTrain", initialStatus)
-handleSeverTrainChange(initialStatus)
+handleGhostTrainChange(initialStatus)

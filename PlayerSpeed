@@ -7,7 +7,7 @@ local PlayerGui = Player:WaitForChild("PlayerGui")
 local Character = Player.Character
 local Humanoid = Character:WaitForChild("Humanoid")
 
--- Mendapatkan referensi ke semua objek yang diperlukan
+-- Handle Scrolling
 local settingGui = PlayerGui:WaitForChild("SettingGui")
 local contentFrame = settingGui:WaitForChild("ContentFrame")
 local settingFrame = contentFrame:WaitForChild("SettingFrame")
@@ -15,7 +15,7 @@ local settingScrolling = settingFrame:WaitForChild("SettingScrolling")
 settingScrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
 settingScrolling.ScrollBarThickness = 0
 
--- Pastikan 'SettingItem' ada sebelum di-clone
+-- Tamplate
 local tamplate = settingScrolling:WaitForChild("SettingItem")
 
 -- Clone
@@ -46,7 +46,7 @@ local configuration = Player:WaitForChild("Configuration")
 local trainSystem = configuration:WaitForChild("TrainSystem")
 
 -- Train System Attribute
-trainSystem:SetAttribute("PlayerSpeed", setItemMinNumText2Num)
+trainSystem:SetAttribute("PlayerSpeed", (100 - setItemMinNumText2Num) / 2 + setItemMinNumText2Num)
 
 local isDragging = false
 
@@ -63,16 +63,16 @@ local function updateSlider(inputPosition: Vector2)
     local relativeMouseX = inputPosition.X - sliderAndLine.AbsolutePosition.X
     local sliderLineWidth = sliderAndLine.AbsoluteSize.X
     
-    -- Menjamin posisi mouse berada di dalam batas SliderAndLine (dalam piksel)
+    -- SliderAndLine
     local clampedX = math.clamp(relativeMouseX, 0, sliderLineWidth)
     
-    -- Menghitung nilai persentase (0 hingga 1)
+    -- Persentage
     local percentage = clampedX / sliderLineWidth
     
-    -- Memperbarui posisi slider menggunakan skala (UDim2.new(scale, offset, scale, offset))
+    -- Slider pos
     sliderFrame.Position = UDim2.new(percentage, 0, sliderFrame.Position.Y.Scale, 0)
     
-    -- Memperbarui lebar Line (skala X adalah persentase)
+    -- Line size
     line.Size = UDim2.new(percentage, 0, line.Size.Y.Scale, 0)
     
     -- Minimum speed
@@ -81,14 +81,14 @@ local function updateSlider(inputPosition: Vector2)
     -- Floor
     local flooredMinimum = math.floor(minimum + 0.5)
     
-    -- Memperbarui teks angka (dibulatkan ke bilangan bulat terdekat)
+    -- Use floor
     setItemCurNum.Text = tostring(flooredMinimum)
     
     -- Player Speed
     trainSystem:SetAttribute("PlayerSpeed", flooredMinimum)
 end
 
--- Menangani dimulainya proses dragging (klik atau sentuh)
+-- Start drag
 progressClickBut.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean)
     if gameProcessedEvent then return end
     
@@ -98,7 +98,7 @@ progressClickBut.InputBegan:Connect(function(input: InputObject, gameProcessedEv
     end
 end)
 
--- Menangani pergerakan saat dragging secara global menggunakan UserInputService
+-- On drag
 UserInputService.InputChanged:Connect(function(input: InputObject, gameProcessedEvent: boolean)
     if not isDragging then return end
     
@@ -109,7 +109,7 @@ UserInputService.InputChanged:Connect(function(input: InputObject, gameProcessed
     end
 end)
 
--- Menangani penghentian dragging (melepas klik atau jari)
+-- Drag end
 UserInputService.InputEnded:Connect(function(input: InputObject)
     -- Hentikan dragging hanya jika tombol mouse dilepas atau sentuhan dihentikan
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -117,8 +117,8 @@ UserInputService.InputEnded:Connect(function(input: InputObject)
     end
 end)
 
--- Menginisialisasi slider ke posisi awal
-local initialPercentage = (trainSystem:GetAttribute("PlayerSpeed") - setItemMinNumText2Num)/100
+-- Start UI
+local initialPercentage = (trainSystem:GetAttribute("PlayerSpeed") - tonumber(setItemMinNumText2Num)) / (100 - tonumber(setItemMinNumText2Num))
 local initialMinimum = initialPercentage * (100 - setItemMinNumText2Num) + setItemMinNumText2Num
 initialFlooredMinimum = math.floor(initialMinimum + 0.5)
 sliderFrame.Position = UDim2.new(initialPercentage, 0, sliderFrame.Position.Y.Scale, 0)

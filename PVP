@@ -99,22 +99,22 @@ local function createInSettingGui()
 	clickButton.Text = "" -- Tidak ada teks
 	clickButton.Parent = toggleFrame
 
-	-- Properti animasi untuk status ON dan OFF
-	offProperties = {
-		Position = UDim2.new(0.05, 0, 0.1, 0),
-		BackgroundColor3 = Color3.new(1, 1, 1) -- Putih
-	}
-	onProperties = {
-		Position = UDim2.new(0.465, 0, 0.1, 0),
-		BackgroundColor3 = Color3.new(1, 248/255, 45/255) -- Kuning
-	}
+    -- Animate
+    offProperties = {
+        Position = UDim2.new(0.05, 0, 0.1, 0),
+        BackgroundColor3 = Color3.new(1, 1, 1)
+    }
+    onProperties = {
+        Position = UDim2.new(0.465, 0, 0.1, 0),
+        BackgroundColor3 = Color3.fromRGB(255, 248, 45)
+    }
 
-	offPropertiesStroke = {
-		Color = Color3.new(1, 1, 1)
-	}
-	onPropertiesStroke = {
-		Color = Color3.new(1, 248/255, 45/255)
-	}
+    offPropertiesStroke = {
+        Color = Color3.new(1, 1, 1)
+    }
+    onPropertiesStroke = {
+        Color = Color3.fromRGB(255, 248, 45)
+    }
 
 	tweenInfo = TweenInfo.new(0.167, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
