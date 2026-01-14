@@ -1,16 +1,17 @@
-local mainBranch = "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main"
+local mainBranch = "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/"
 
-local TtFtM = {
-    mainBranch .. "/PlayerSpeed",
-    mainBranch .. "/AntiAfk",
-    mainBranch .. "/PVP(SafeAreaGui)",
-    mainBranch .. "/ShowPlayerPower",
-    mainBranch .. "/GhostTrain",
-    mainBranch .. "/Frenzy",
-    mainBranch .. "/OPClick",
-    mainBranch .. "/PVP"
+local MultiLink = {
+    mainBranch .. "PlayerSpeed",
+    mainBranch .. "AntiAfk",
+    mainBranch .. "PVP(SafeAreaGui)",
+    mainBranch .. "ShowPlayerPower",
+    mainBranch .. "GhostTrain",
+    mainBranch .. "GhostTrainPlus",
+    mainBranch .. "Frenzy",
+    mainBranch .. "OPClick",
+    mainBranch .. "PVP"
 }
 
-for i, LoAl in ipairs(TtFtM) do
-    loadstring(game:HttpGet(LoAl))()
+for i, MultiLoad in ipairs(MultiLink) do
+    loadstring(game:HttpGet(MultiLoad))()
 end
