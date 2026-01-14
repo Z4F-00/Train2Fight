@@ -9,7 +9,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Z4F-00/Train2Fight/re
 ```
 </details>
 
-### Where is this GUI script located?
+### Where can I use the feature?
 
 <ol>
   <li>The script must have been executed by your executor.</li>
