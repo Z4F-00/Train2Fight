@@ -1,0 +1,170 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local ReplicatedStorage= game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local settingFrame = PlayerGui:WaitForChild("SettingGui"):WaitForChild("ContentFrame"):WaitForChild("SettingFrame"):WaitForChild("SettingScrolling")
+settingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+settingFrame.ScrollBarThickness = 0
+
+-- Template
+local SettingItem = settingFrame.SettingItem
+
+-- Get TrainSystem config
+local TrainSystem = LocalPlayer.Configuration:WaitForChild("TrainSystem")
+
+-- Tambahkan variabel untuk koneksi Heartbeat
+local heartbeatConnection
+
+-- Remote
+local trainEquipmentRemote = ReplicatedStorage:WaitForChild("TrainEquipment"):WaitForChild("Remote")
+local applyStationaryTrainRemote = trainEquipmentRemote:WaitForChild("ApplyStationaryTrain")
+local applyMobileTrainRemote = trainEquipmentRemote:WaitForChild("ApplyMobileTrain")
+
+
+-- Variabel untuk elemen UI
+local ghostTrainSetting
+local toggleBox
+local stroke
+local offProperties
+local onProperties
+local offPropertiesStroke
+local onPropertiesStroke
+local tweenInfo
+
+local function createInSettingGui()
+    ghostTrainSetting = SettingItem:Clone()
+    ghostTrainSetting.Name = "GhostTrainSetting"
+    ghostTrainSetting.Parent = settingFrame
+    ghostTrainSetting.Visible = true
+
+    -- Destroying
+    for _, child in pairs(ghostTrainSetting:GetChildren()) do
+        if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then
+            child:Destroy()
+        end
+    end
+
+    local SetItemName = ghostTrainSetting:WaitForChild("SetItemName")
+    SetItemName.Text = "Ghost Train"
+    SetItemName.Position = UDim2.new(0.3, 0, 0.474, 0)
+
+    -- Membuat Frame (bingkai luar) sebagai latar belakang tombol
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Name = "ToggleFrame"
+    toggleFrame.Size = UDim2.new(0.15, 0, 0.553, 0)
+    toggleFrame.Position = UDim2.new(0.85, 0, 0.5, 0)
+    toggleFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    toggleFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Warna hitam
+    toggleFrame.BorderSizePixel = 0
+    toggleFrame.Parent = ghostTrainSetting
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.15, 0) -- corner 0.15
+    corner.Parent = toggleFrame
+
+    stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.new(1, 1, 1) -- warna putih
+    stroke.Transparency = 0.5
+    stroke.Thickness = 1.2
+    stroke.Parent = toggleFrame
+
+    -- Membuat Frame (kotak kecil) yang akan bergeser
+    toggleBox = Instance.new("Frame")
+    toggleBox.Name = "ToggleBox"
+    toggleBox.Size = UDim2.new(0.49, 0, 0.8, 0)
+    toggleBox.Position = UDim2.new(0.05, 0, 0.1, 0) -- Posisi awal (kiri)
+    toggleBox.BackgroundColor3 = Color3.new(1, 1, 1) -- Warna awal (putih)
+    toggleBox.BorderSizePixel = 0
+    toggleBox.Parent = toggleFrame
+
+    local cornerToggleBox = corner:Clone()
+    cornerToggleBox.CornerRadius = UDim.new(0.1)
+    cornerToggleBox.Parent = toggleBox
+
+    -- Membuat TextButton sebagai area yang bisa diklik
+    local clickButton = Instance.new("TextButton")
+    clickButton.Name = "ClickButton"
+    clickButton.Size = UDim2.new(1, 0, 1, 0) -- Menutupi seluruh Frame
+    clickButton.BackgroundTransparency = 1
+    clickButton.Text = "" -- Tidak ada teks
+    clickButton.Parent = toggleFrame
+
+    -- Animate
+    offProperties = {
+        Position = UDim2.new(0.05, 0, 0.1, 0),
+        BackgroundColor3 = Color3.new(1, 1, 1)
+    }
+    onProperties = {
+        Position = UDim2.new(0.465, 0, 0.1, 0),
+        BackgroundColor3 = Color3.fromRGB(255, 248, 45)
+    }
+
+    offPropertiesStroke = {
+        Color = Color3.new(1, 1, 1)
+    }
+    onPropertiesStroke = {
+        Color = Color3.fromRGB(255, 248, 45)
+    }
+
+    tweenInfo = TweenInfo.new(0.167, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+    -- Menghubungkan fungsi ke event klik tombol
+    clickButton.MouseButton1Click:Connect(function()
+        -- Membalikkan status atribut
+        local currentStatus = TrainSystem:GetAttribute("IsGhostTrain")
+        TrainSystem:SetAttribute("IsGhostTrain", not currentStatus)
+    end)
+end
+
+local getGhostTrainSettingGui = settingFrame:FindFirstChild("GhostTrainSetting")
+
+if not getGhostTrainSettingGui then
+    createInSettingGui()
+end
+
+-- Fungsi untuk menangani perubahan status atribut
+local function handleGhostTrainChange(newValue)
+    if not toggleBox or not stroke then return end
+
+    if newValue == true then
+        -- ON
+        local onTween = TweenService:Create(toggleBox, tweenInfo, onProperties)
+        local onTweenStroke = TweenService:Create(stroke, tweenInfo, onPropertiesStroke)
+        onTween:Play()
+        onTweenStroke:Play()
+        
+        if not heartbeatConnection then
+            heartbeatConnection = RunService.Heartbeat:Connect(function()
+                applyStationaryTrainRemote:InvokeServer()
+                applyMobileTrainRemote:InvokeServer()
+            end)
+        end
+
+    else
+        -- OFF
+        local offTween = TweenService:Create(toggleBox, tweenInfo, offProperties)
+        local offTweenStroke = TweenService:Create(stroke, tweenInfo, offPropertiesStroke)
+        offTween:Play()
+        offTweenStroke:Play()
+
+        -- Hentikan loop Heartbeat
+        if heartbeatConnection then
+            heartbeatConnection:Disconnect()
+            heartbeatConnection = nil
+        end
+    end
+end
+
+-- Deteksi perubahan atribut "IsGhostTrain"
+TrainSystem:GetAttributeChangedSignal("IsGhostTrain"):Connect(function()
+    local newGhostTrainValue = TrainSystem:GetAttribute("IsGhostTrain")
+    handleGhostTrainChange(newGhostTrainValue)
+end)
+
+-- Jalankan fungsi pertama kali untuk menyinkronkan status awal
+local initialStatus = TrainSystem:GetAttribute("IsGhostTrain") or false
+TrainSystem:SetAttribute("IsGhostTrain", initialStatus)
+handleGhostTrainChange(initialStatus)
