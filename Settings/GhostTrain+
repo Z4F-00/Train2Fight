@@ -15,8 +15,7 @@ AttrController.GetAttrValueByInstance = function(self, instance, attrIndex)
     
     if isGhostPlusActive and instance == LocalPlayer then
         local id = tonumber(attrIndex)
-        if id == 74 then return 0, 1000000 end 
-        if id == 42 or id == 45 or id == 48 or id == 51 then return 0, 999999999 end
+        if id == 74 then return 0, 1000000 end
     end
     return oldGetAttr(self, instance, attrIndex)
 end
