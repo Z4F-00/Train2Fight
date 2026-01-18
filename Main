@@ -3,6 +3,7 @@ local settingsFolder = mainBranch .. "Settings/"
 
 local MultiLink = {
     mainBranch .. "SaveLoad",
+    mainBranch .. "OpeningAnim",
     settingsFolder .. "PlayerSpeed",
     settingsFolder .. "AntiAfk",
     settingsFolder .. "PVP(SafeAreaGui)",
@@ -12,6 +13,7 @@ local MultiLink = {
     settingsFolder .. "Frenzy",
     settingsFolder .. "OPClick",
     settingsFolder .. "PVP"
+    settingsFolder .. "Opening"
 }
 
 for i, MultiLoad in ipairs(MultiLink) do
