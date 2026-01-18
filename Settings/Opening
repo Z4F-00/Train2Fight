@@ -1,0 +1,129 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local settingFrame = PlayerGui:WaitForChild("SettingGui"):WaitForChild("ContentFrame"):WaitForChild("SettingFrame"):WaitForChild("SettingScrolling")
+settingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+settingFrame.ScrollBarThickness = 0
+
+local SettingItem = settingFrame.SettingItem
+local TrainSystem = LocalPlayer.Configuration:WaitForChild("TrainSystem")
+
+repeat task.wait() until _G.loadFile and _G.saveFile
+
+local path = "Z4F Script/Train to Fight/Settings"
+local savedStatus = _G.loadFile(path, "Opening", true)
+TrainSystem:SetAttribute("IsOpeningEnabled", savedStatus)
+
+local openingSetting
+local toggleBoxOpening
+local strokeOpening
+local offPropOpening
+local onPropOpening
+local offStrokeOpening
+local onStrokeOpening
+local tweenInfoOpening
+
+local function createOpeningSettingGui()
+    openingSetting = SettingItem:Clone()
+    openingSetting.Name = "OpeningSetting"
+    openingSetting.Parent = settingFrame
+    openingSetting.Visible = true
+
+    for _, child in pairs(openingSetting:GetChildren()) do
+        if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then
+            child:Destroy()
+        end
+    end
+
+    local SetItemName = openingSetting:WaitForChild("SetItemName")
+    SetItemName.Text = "Opening"
+    SetItemName.Position = UDim2.new(0.3, 0, 0.474, 0)
+
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Name = "ToggleFrame"
+    toggleFrame.Size = UDim2.new(0.15, 0, 0.553, 0)
+    toggleFrame.Position = UDim2.new(0.85, 0, 0.5, 0)
+    toggleFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    toggleFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    toggleFrame.BorderSizePixel = 0
+    toggleFrame.Parent = openingSetting
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.15, 0)
+    corner.Parent = toggleFrame
+
+    strokeOpening = Instance.new("UIStroke")
+    strokeOpening.Color = Color3.new(1, 1, 1)
+    strokeOpening.Transparency = 0.5
+    strokeOpening.Thickness = 1.2
+    strokeOpening.Parent = toggleFrame
+
+    toggleBoxOpening = Instance.new("Frame")
+    toggleBoxOpening.Name = "ToggleBox"
+    toggleBoxOpening.Size = UDim2.new(0.49, 0, 0.8, 0)
+    toggleBoxOpening.Position = UDim2.new(0.05, 0, 0.1, 0)
+    toggleBoxOpening.BackgroundColor3 = Color3.new(1, 1, 1)
+    toggleBoxOpening.BorderSizePixel = 0
+    toggleBoxOpening.Parent = toggleFrame
+
+    local cornerToggleBox = corner:Clone()
+    cornerToggleBox.CornerRadius = UDim.new(0.1)
+    cornerToggleBox.Parent = toggleBoxOpening
+
+    local clickButton = Instance.new("TextButton")
+    clickButton.Name = "ClickButton"
+    clickButton.Size = UDim2.new(1, 0, 1, 0)
+    clickButton.BackgroundTransparency = 1
+    clickButton.Text = ""
+    clickButton.Parent = toggleFrame
+
+    offPropOpening = {
+        Position = UDim2.new(0.05, 0, 0.1, 0),
+        BackgroundColor3 = Color3.new(1, 1, 1)
+    }
+    onPropOpening = {
+        Position = UDim2.new(0.465, 0, 0.1, 0),
+        BackgroundColor3 = Color3.fromRGB(255, 248, 45)
+    }
+
+    offStrokeOpening = {
+        Color = Color3.new(1, 1, 1)
+    }
+    onStrokeOpening = {
+        Color = Color3.fromRGB(255, 248, 45)
+    }
+
+    tweenInfoOpening = TweenInfo.new(0.167, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+    clickButton.MouseButton1Click:Connect(function()
+        local currentStatus = TrainSystem:GetAttribute("IsOpeningEnabled")
+        local nextStatus = not currentStatus
+        _G.saveFile(path, "Opening", nextStatus)
+        TrainSystem:SetAttribute("IsOpeningEnabled", nextStatus)
+    end)
+end
+
+local existingOpeningGui = settingFrame:FindFirstChild("OpeningSetting")
+if not existingOpeningGui then
+    createOpeningSettingGui()
+end
+
+local function handleOpeningChange(newValue)
+    if not toggleBoxOpening or not strokeOpening then return end
+
+    if newValue == true then
+        TweenService:Create(toggleBoxOpening, tweenInfoOpening, onPropOpening):Play()
+        TweenService:Create(strokeOpening, tweenInfoOpening, onStrokeOpening):Play()
+    else
+        TweenService:Create(toggleBoxOpening, tweenInfoOpening, offPropOpening):Play()
+        TweenService:Create(strokeOpening, tweenInfoOpening, offStrokeOpening):Play()
+    end
+end
+
+TrainSystem:GetAttributeChangedSignal("IsOpeningEnabled"):Connect(function()
+    handleOpeningChange(TrainSystem:GetAttribute("IsOpeningEnabled"))
+end)
+
+handleOpeningChange(TrainSystem:GetAttribute("IsOpeningEnabled"))
