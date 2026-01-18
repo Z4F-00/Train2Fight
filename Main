@@ -8,8 +8,8 @@ local MultiLink = {
     settingsFolder .. "AntiAfk",
     settingsFolder .. "PVP(SafeAreaGui)",
     settingsFolder .. "ShowPlayerPower",
-    settingsFolder .. "GhostTrain",
-    settingsFolder .. "GhostTrainPlus",
+    settingsFolder .. "FPSTrain",
+    settingsFolder .. "FPSTrain+",
     settingsFolder .. "Frenzy",
     settingsFolder .. "OPClick",
     settingsFolder .. "PVP",
@@ -17,5 +17,14 @@ local MultiLink = {
 }
 
 for i, MultiLoad in ipairs(MultiLink) do
-    loadstring(game:HttpGet(MultiLoad))()
+    local success, errorMessage = pcall(function()
+        local content = game:HttpGet(MultiLoad)
+        loadstring(content)()
+    end)
+    
+    if success then
+        print("Successfully loaded: " .. MultiLoad)
+    else
+        warn("Failed to load: " .. MultiLoad .. " | Error: " .. errorMessage)
+    end
 end
