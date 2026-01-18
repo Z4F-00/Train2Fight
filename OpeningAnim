@@ -1,0 +1,288 @@
+local path = "Z4F Script/Train to Fight/Settings"
+local savedStatus = _G.loadFile(path, "Opening", true)
+
+if not savedStatus then return end
+
+local hubName = "VOID-00"
+local hubVersion = "v6.0"
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Check = PlayerGui:FindFirstChild(hubName.."_UI")
+
+if Check then return end
+
+local sections = {} 
+
+local blur = Instance.new("BlurEffect")
+blur.Size = 0
+blur.Parent = Lighting
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = hubName.."_UI"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999999 
+screenGui.Parent = PlayerGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 450, 0, 45)
+mainFrame.Position = UDim2.new(0.5, -225, 0.5, -165)
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = true 
+mainFrame.BackgroundTransparency = 1
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 12)
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(255, 215, 0)
+mainStroke.Thickness = 2.5
+mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+mainStroke.Transparency = 1
+mainStroke.Parent = mainFrame
+
+local introText = Instance.new("TextLabel")
+introText.Size = UDim2.new(0, 450, 0, 50)
+introText.Position = UDim2.new(0.5, 0, 0.5, 0)
+introText.AnchorPoint = Vector2.new(0.5, 0.5)
+introText.BackgroundTransparency = 1
+introText.Text = ""
+introText.TextColor3 = Color3.fromRGB(255, 215, 0)
+introText.Font = Enum.Font.GothamBold
+introText.TextSize = 50
+introText.ZIndex = 15
+introText.Parent = screenGui
+
+local logSeparator = Instance.new("TextLabel")
+logSeparator.Size = UDim2.new(0, 20, 0, 45)
+logSeparator.BackgroundTransparency = 1
+logSeparator.Text = "-"
+logSeparator.TextColor3 = Color3.fromRGB(255, 215, 0)
+logSeparator.Font = Enum.Font.GothamBold
+logSeparator.TextSize = 16
+logSeparator.TextTransparency = 1
+logSeparator.ZIndex = 12
+logSeparator.Parent = mainFrame
+
+local logText = Instance.new("TextLabel")
+logText.Size = UDim2.new(0, 200, 0, 45)
+logText.BackgroundTransparency = 1
+logText.Text = "UPDATE LOG " .. hubVersion
+logText.TextColor3 = Color3.fromRGB(255, 215, 0)
+logText.Font = Enum.Font.GothamBold
+logText.TextSize = 16
+logText.TextXAlignment = Enum.TextXAlignment.Left
+logText.TextTransparency = 1
+logText.ZIndex = 12
+logText.Parent = mainFrame
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -40, 0, 7)
+closeButton.BackgroundTransparency = 1
+closeButton.Text = "×"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextSize = 25
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextTransparency = 1 
+closeButton.ZIndex = 20
+closeButton.Parent = mainFrame
+
+local line = Instance.new("Frame")
+line.Size = UDim2.new(1, -30, 0, 1)
+line.Position = UDim2.new(0, 15, 0, 45)
+line.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+line.BackgroundTransparency = 1
+line.BorderSizePixel = 0
+line.ZIndex = 10
+line.Parent = mainFrame
+
+local contentContainer = Instance.new("ScrollingFrame")
+contentContainer.Size = UDim2.new(1, -30, 0, 250) 
+contentContainer.Position = UDim2.new(0, 15, 0, 55)
+contentContainer.BackgroundTransparency = 1
+contentContainer.ScrollBarThickness = 2
+contentContainer.ScrollBarImageColor3 = Color3.fromRGB(255, 215, 0)
+contentContainer.BorderSizePixel = 0
+contentContainer.ClipsDescendants = false 
+contentContainer.Visible = false
+contentContainer.ZIndex = 1
+contentContainer.ScrollingDirection = Enum.ScrollingDirection.Y 
+contentContainer.CanvasSize = UDim2.new(0, 0, 0, 0) 
+contentContainer.Parent = mainFrame
+
+local uiList = Instance.new("UIListLayout")
+uiList.Padding = UDim.new(0, 12)
+uiList.SortOrder = Enum.SortOrder.LayoutOrder
+uiList.Parent = contentContainer
+
+uiList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    contentContainer.CanvasSize = UDim2.new(0, 0, 0, uiList.AbsoluteContentSize.Y + 20)
+end)
+
+local function createSection(title, desc)
+    local sectionFrame = Instance.new("Frame")
+    sectionFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    sectionFrame.Size = UDim2.new(1, 0, 0, 0)
+    sectionFrame.AutomaticSize = Enum.AutomaticSize.Y
+    sectionFrame.BackgroundTransparency = 1
+    sectionFrame.Parent = contentContainer
+    
+    Instance.new("UICorner", sectionFrame).CornerRadius = UDim.new(0, 8)
+    local sStroke = Instance.new("UIStroke", sectionFrame)
+    sStroke.Color = Color3.fromRGB(255, 215, 0)
+    sStroke.Thickness = 1.2
+    sStroke.Transparency = 1
+    
+    local sTitle = Instance.new("TextLabel", sectionFrame)
+    sTitle.Size = UDim2.new(1, -20, 0, 30)
+    sTitle.Position = UDim2.new(0, 12, 0, 8)
+    sTitle.Text = "» " .. title
+    sTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
+    sTitle.Font = Enum.Font.GothamBold
+    sTitle.TextSize = 14
+    sTitle.BackgroundTransparency = 1
+    sTitle.TextTransparency = 1
+    sTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+    local sDesc = Instance.new("TextLabel", sectionFrame)
+    sDesc.Size = UDim2.new(1, -25, 0, 0)
+    sDesc.Position = UDim2.new(0, 12, 0, 38)
+    sDesc.Text = desc
+    sDesc.TextColor3 = Color3.fromRGB(220, 220, 220)
+    sDesc.Font = Enum.Font.Gotham
+    sDesc.TextSize = 12
+    sDesc.BackgroundTransparency = 1
+    sDesc.TextWrapped = true
+    sDesc.TextXAlignment = Enum.TextXAlignment.Left
+    sDesc.TextYAlignment = Enum.TextYAlignment.Top
+    sDesc.AutomaticSize = Enum.AutomaticSize.Y
+    sDesc.TextTransparency = 1
+    
+    Instance.new("UIPadding", sectionFrame).PaddingBottom = UDim.new(0, 15)
+    table.insert(sections, {frame = sectionFrame, stroke = sStroke, title = sTitle, desc = sDesc})
+end
+
+createSection("HIGHLIGHT UPDATE v6.0", "Implementasi sistem Cinematic Intro & Opening dinamis berbasis efek blur layar. Re-desain menyeluruh pada antarmuka Update Log untuk estetika yang lebih modern. Selain itu, fitur Ghost Train kini telah resmi dialihkan menjadi FPS Train, yang dibarengi dengan optimasi struktur folder serta peningkatan akurasi pada sinkronisasi Save/Load data.")
+createSection("OPCLICK", "Membuka akses Gamepass secara paksa untuk Auto Train, meningkatkan kecepatan latihan hingga 3x lipat.")
+createSection("FRENZY", "Memaksa Mode Frenzy aktif secara permanen, mempercepat latihan hingga 4x lipat di atas limit normal.")
+createSection("FPS TRAIN", "Latihan tanpa gerak yang sinkron dengan FPS. Jika digabung dengan Mode Frenzy, kecepatan menjadi 4x lipat lebih cepat.")
+createSection("FPS TRAIN+", "Versi overclock dari FPS Train yang mendorong limit server secara ekstrem untuk statistik hingga jutaan.")
+createSection("PVP SYSTEM", "Bypass area pertempuran secara instan melalui sistem Remote Server.")
+createSection("SHOW POWER", "Menampilkan total power pemain lain secara real-time di atas karakter mereka.")
+createSection("ANTI AFK & SPEED", "Sistem anti-disconnect dan kustomisasi kecepatan gerak karakter yang stabil.")
+
+task.spawn(function()
+    TweenService:Create(blur, TweenInfo.new(0.5), {Size = 24}):Play()
+    
+    for i = 1, #hubName do
+        introText.Text = string.sub(hubName, 1, i)
+        task.wait(0.1)
+    end
+    task.wait(0.5)
+
+    TweenService:Create(blur, TweenInfo.new(1), {Size = 0}):Play()
+    
+    introText.AnchorPoint = Vector2.new(0, 0)
+    local moveIntro = TweenService:Create(introText, TweenInfo.new(0.7, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Position = mainFrame.Position + UDim2.new(0, 15, 0, 0),
+        Size = UDim2.new(0, 80, 0, 45),
+        TextSize = 16
+    })
+    moveIntro:Play()
+    
+    task.wait(0.5)
+    TweenService:Create(mainFrame, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(mainStroke, TweenInfo.new(0.4), {Transparency = 0}):Play()
+    
+    introText.Parent = mainFrame
+    introText.Position = UDim2.new(0, 15, 0, 0)
+
+    local introWidth = introText.TextBounds.X
+    logSeparator.Position = UDim2.new(0, 15 + introWidth + 10, 0, 0)
+    logText.Position = UDim2.new(0, 15 + introWidth + 30, 0, 0)
+
+    TweenService:Create(logSeparator, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+    TweenService:Create(logText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+    TweenService:Create(mainFrame, TweenInfo.new(0.7, Enum.EasingStyle.Quart), {Size = UDim2.new(0, 450, 0, 330)}):Play()
+    
+    task.wait(0.3)
+    TweenService:Create(closeButton, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+    
+    task.wait(0.4)
+    contentContainer.Visible = true
+    line.BackgroundTransparency = 0.5
+    for _, item in ipairs(sections) do
+        TweenService:Create(item.frame, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+        TweenService:Create(item.stroke, TweenInfo.new(0.3), {Transparency = 0.8}):Play()
+        TweenService:Create(item.title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+        TweenService:Create(item.desc, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+    end
+end)
+
+closeButton.MouseButton1Click:Connect(function()
+    contentContainer.Visible = false
+    line.BackgroundTransparency = 1
+    
+    TweenService:Create(closeButton, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+    TweenService:Create(logSeparator, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    TweenService:Create(logText, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    
+    local closeTween = TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 450, 0, 45)
+    })
+    closeTween:Play()
+    
+    closeTween.Completed:Connect(function()
+        introText.Parent = screenGui
+        introText.AnchorPoint = Vector2.new(0.5, 0.5)
+        introText.Position = mainFrame.Position + UDim2.new(0, 225, 0, 22)
+        
+        TweenService:Create(blur, TweenInfo.new(0.4), {Size = 10}):Play()
+        
+        TweenService:Create(mainFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(mainStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
+        
+        local outIntro = TweenService:Create(introText, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            Size = UDim2.new(0, 450, 0, 50),
+            TextSize = 50,
+            TextTransparency = 1
+        })
+        outIntro:Play()
+        
+        outIntro.Completed:Connect(function()
+            TweenService:Create(blur, TweenInfo.new(0.3), {Size = 0}):Play()
+            task.wait(0.3)
+            blur:Destroy()
+            screenGui:Destroy()
+        end)
+    end)
+end)
+
+local dragging, dragInput, dragStart, startPos
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+mainFrame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
