@@ -13,7 +13,6 @@ local Lighting = game:GetService("Lighting")
 local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local Check = PlayerGui:FindFirstChild(hubName.."_UI")
-
 if Check then return end
 
 local sections = {} 
@@ -48,6 +47,30 @@ mainStroke.Thickness = 2.5
 mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 mainStroke.Transparency = 1
 mainStroke.Parent = mainFrame
+
+local headerBg = Instance.new("Frame")
+headerBg.Name = "HeaderBg"
+headerBg.Size = UDim2.new(1, 0, 0, 45)
+headerBg.Position = UDim2.new(0, 0, 0, 0)
+headerBg.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+headerBg.BorderSizePixel = 0
+headerBg.BackgroundTransparency = 1
+headerBg.ZIndex = 5
+headerBg.Parent = mainFrame
+
+local headerCorner = Instance.new("UICorner")
+headerCorner.CornerRadius = UDim.new(0, 12)
+headerCorner.Parent = headerBg
+
+local headerLine = Instance.new("Frame")
+headerLine.Name = "HeaderLine"
+headerLine.Size = UDim2.new(1, 0, 0, 1)
+headerLine.Position = UDim2.new(0, 0, 1, -1)
+headerLine.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+headerLine.BackgroundTransparency = 1
+headerLine.BorderSizePixel = 0
+headerLine.ZIndex = 6
+headerLine.Parent = headerBg
 
 local introText = Instance.new("TextLabel")
 introText.Size = UDim2.new(0, 450, 0, 50)
@@ -96,6 +119,19 @@ closeButton.TextTransparency = 1
 closeButton.ZIndex = 20
 closeButton.Parent = mainFrame
 
+local creditText = Instance.new("TextLabel")
+creditText.Name = "CreditText"
+creditText.Size = UDim2.new(0, 100, 0, 20)
+creditText.Position = UDim2.new(1, -110, 1, -25)
+creditText.BackgroundTransparency = 1
+creditText.Text = "Created by Z4F_00"
+creditText.TextColor3 = Color3.fromRGB(255, 215, 0)
+creditText.Font = Enum.Font.GothamBold
+creditText.TextSize = 10
+creditText.TextTransparency = 1
+creditText.ZIndex = 10
+creditText.Parent = mainFrame
+
 local line = Instance.new("Frame")
 line.Size = UDim2.new(1, -30, 0, 1)
 line.Position = UDim2.new(0, 15, 0, 45)
@@ -106,18 +142,25 @@ line.ZIndex = 10
 line.Parent = mainFrame
 
 local contentContainer = Instance.new("ScrollingFrame")
-contentContainer.Size = UDim2.new(1, -30, 0, 250) 
+contentContainer.Size = UDim2.new(1, -30, 0, 230)
 contentContainer.Position = UDim2.new(0, 15, 0, 55)
 contentContainer.BackgroundTransparency = 1
 contentContainer.ScrollBarThickness = 2
 contentContainer.ScrollBarImageColor3 = Color3.fromRGB(255, 215, 0)
 contentContainer.BorderSizePixel = 0
-contentContainer.ClipsDescendants = false 
+contentContainer.ClipsDescendants = true 
 contentContainer.Visible = false
 contentContainer.ZIndex = 1
 contentContainer.ScrollingDirection = Enum.ScrollingDirection.Y 
 contentContainer.CanvasSize = UDim2.new(0, 0, 0, 0) 
 contentContainer.Parent = mainFrame
+
+local containerPadding = Instance.new("UIPadding")
+containerPadding.PaddingLeft = UDim.new(0, 5)
+containerPadding.PaddingRight = UDim.new(0, 5)
+containerPadding.PaddingTop = UDim.new(0, 5)
+containerPadding.PaddingBottom = UDim.new(0, 5)
+containerPadding.Parent = contentContainer
 
 local uiList = Instance.new("UIListLayout")
 uiList.Padding = UDim.new(0, 12)
@@ -131,7 +174,7 @@ end)
 local function createSection(title, desc)
     local sectionFrame = Instance.new("Frame")
     sectionFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    sectionFrame.Size = UDim2.new(1, 0, 0, 0)
+    sectionFrame.Size = UDim2.new(0.96, 0, 0, 0) 
     sectionFrame.AutomaticSize = Enum.AutomaticSize.Y
     sectionFrame.BackgroundTransparency = 1
     sectionFrame.Parent = contentContainer
@@ -141,6 +184,7 @@ local function createSection(title, desc)
     sStroke.Color = Color3.fromRGB(255, 215, 0)
     sStroke.Thickness = 1.2
     sStroke.Transparency = 1
+    sStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border 
     
     local sTitle = Instance.new("TextLabel", sectionFrame)
     sTitle.Size = UDim2.new(1, -20, 0, 30)
@@ -182,7 +226,6 @@ createSection("ANTI AFK & SPEED", "Sistem anti-disconnect dan kustomisasi kecepa
 
 task.spawn(function()
     TweenService:Create(blur, TweenInfo.new(0.5), {Size = 24}):Play()
-    
     for i = 1, #hubName do
         introText.Text = string.sub(hubName, 1, i)
         task.wait(0.1)
@@ -202,6 +245,7 @@ task.spawn(function()
     task.wait(0.5)
     TweenService:Create(mainFrame, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
     TweenService:Create(mainStroke, TweenInfo.new(0.4), {Transparency = 0}):Play()
+    TweenService:Create(headerBg, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
     
     introText.Parent = mainFrame
     introText.Position = UDim2.new(0, 15, 0, 0)
@@ -217,6 +261,7 @@ task.spawn(function()
     
     task.wait(0.3)
     TweenService:Create(closeButton, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+    TweenService:Create(creditText, TweenInfo.new(0.4), {TextTransparency = 0.5}):Play()
     
     task.wait(0.4)
     contentContainer.Visible = true
@@ -234,6 +279,7 @@ closeButton.MouseButton1Click:Connect(function()
     line.BackgroundTransparency = 1
     
     TweenService:Create(closeButton, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+    TweenService:Create(creditText, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
     TweenService:Create(logSeparator, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
     TweenService:Create(logText, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
     
@@ -243,12 +289,12 @@ closeButton.MouseButton1Click:Connect(function()
     closeTween:Play()
     
     closeTween.Completed:Connect(function()
+        TweenService:Create(headerBg, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
         introText.Parent = screenGui
         introText.AnchorPoint = Vector2.new(0.5, 0.5)
         introText.Position = mainFrame.Position + UDim2.new(0, 225, 0, 22)
         
         TweenService:Create(blur, TweenInfo.new(0.4), {Size = 10}):Play()
-        
         TweenService:Create(mainFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
         TweenService:Create(mainStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
         
@@ -269,7 +315,7 @@ closeButton.MouseButton1Click:Connect(function()
     end)
 end)
 
-local dragging, dragInput, dragStart, startPos
+local dragging, dragStart, startPos
 mainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
