@@ -1,0 +1,47 @@
+local HttpService = game:GetService("HttpService")
+
+local function ensurePath(path)
+    local folders = path:split("/")
+    local currentPath = ""
+    
+    for i = 1, #folders - 1 do
+        currentPath = currentPath .. folders[i] .. "/"
+        if not isfolder(currentPath) then
+            pcall(function() makefolder(currentPath) end)
+        end
+    end
+end
+
+
+_G.saveFile = function(fullPath, key, value)
+    ensurePath(fullPath)
+    
+    local path = fullPath .. ".json"
+    local data = {}
+    
+    if isfile(path) then
+        local success, decoded = pcall(function()
+            return HttpService:JSONDecode(readfile(path))
+        end)
+        if success then data = decoded end
+    end
+    
+    data[key] = value
+    writefile(path, HttpService:JSONEncode(data))
+end
+
+_G.loadFile = function(fullPath, key, defaultValue)
+    local path = fullPath .. ".json"
+    
+    if isfile(path) then
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(readfile(path))
+        end)
+        if success and data[key] ~= nil then
+            return data[key]
+        end
+    end
+    
+    _G.saveFile(fullPath, key, defaultValue)
+    return defaultValue
+end
