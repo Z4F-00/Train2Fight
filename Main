@@ -1,15 +1,17 @@
 local mainBranch = "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/"
+local settingsFolder = mainBranch .. "Settings/"
 
 local MultiLink = {
-    mainBranch .. "PlayerSpeed",
-    mainBranch .. "AntiAfk",
-    mainBranch .. "PVP(SafeAreaGui)",
-    mainBranch .. "ShowPlayerPower",
-    mainBranch .. "GhostTrain",
-    mainBranch .. "GhostTrainPlus",
-    mainBranch .. "Frenzy",
-    mainBranch .. "OPClick",
-    mainBranch .. "PVP"
+    mainBranch .. "SaveLoad",
+    settingsFolder .. "PlayerSpeed",
+    settingsFolder .. "AntiAfk",
+    settingsFolder .. "PVP(SafeAreaGui)",
+    settingsFolder .. "ShowPlayerPower",
+    settingsFolder .. "GhostTrain",
+    settingsFolder .. "GhostTrainPlus",
+    settingsFolder .. "Frenzy",
+    settingsFolder .. "OPClick",
+    settingsFolder .. "PVP"
 }
 
 for i, MultiLoad in ipairs(MultiLink) do
