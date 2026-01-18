@@ -12,7 +12,7 @@ local MultiLink = {
     settingsFolder .. "GhostTrainPlus",
     settingsFolder .. "Frenzy",
     settingsFolder .. "OPClick",
-    settingsFolder .. "PVP"
+    settingsFolder .. "PVP",
     settingsFolder .. "Opening"
 }
 
