@@ -1,3 +1,5 @@
+repeat task.wait() until _G.loadFile and _G.saveFile
+
 local path = "Z4F Script/Train to Fight/Settings"
 local savedStatus = _G.loadFile(path, "Opening", true)
 
