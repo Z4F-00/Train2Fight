@@ -13,7 +13,8 @@ local MultiLink = {
     settingsFolder .. "Frenzy",
     settingsFolder .. "OPClick",
     settingsFolder .. "PVP",
-    settingsFolder .. "Opening"
+    settingsFolder .. "Opening",
+    settingsFolder .. "OpenUpdateLog"
 }
 
 for i, MultiLoad in ipairs(MultiLink) do
