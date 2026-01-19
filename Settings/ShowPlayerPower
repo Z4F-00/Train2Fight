@@ -2,12 +2,42 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
+
+local allSuffixes = (function()
+    local s = {"", "K", "M", "B", "T", "Qa.", "Qi."}
+    local alphabet = "abcdefghijklmnopqrstuvwxyz"
+    for i = 1, #alphabet do
+        local char1 = string.sub(alphabet, i, i)
+        for j = 1, #alphabet do
+            table.insert(s, char1 .. string.sub(alphabet, j, j) .. ".")
+        end
+    end
+    return s
+end)()
+
+function suffixValue(number)
+    local absNumber = math.abs(number)
+    if absNumber == 0 then return "0" end
+    
+    local i = math.floor(math.log(absNumber, 1000)) + 1
+    
+    if i > #allSuffixes then return string.format("%.2e", number) end
+    
+    local shortened = absNumber / (1000 ^ (i - 1))
+    local formatted = string.format("%.2f", shortened):gsub("%.?0+$", "")
+    
+    local res = formatted .. " " .. allSuffixes[i]
+    return number < 0 and "-" .. res or res
+end
 
 local settingFrame = PlayerGui:WaitForChild("SettingGui"):WaitForChild("ContentFrame"):WaitForChild("SettingFrame"):WaitForChild("SettingScrolling")
 local SettingItem = settingFrame:WaitForChild("SettingItem")
 
 settingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
 settingFrame.ScrollBarThickness = 0
+
+repeat task.wait() until _G.loadFile and _G.saveFile
 
 local path = "Z4F Script/Train to Fight/Settings"
 local isPowerTagsActive = _G.loadFile(path, "ShowPower", true)
@@ -21,31 +51,6 @@ local offPropertiesStroke
 local onPropertiesStroke
 local tweenInfo
 
-function suffixValue(number)
-    local absNumber = math.abs(number)
-    local suffixes = {"", "K", "M", "B", "T", "Qa.", "Qi.", "aa.", "ab.", "ac.", "ad.", "ae.", "af.", "ag.", "ah.", "ai.", "aj.", "ak.", "al.", "am.", "an.", "ap.", "aq.", "ar.", "as.", "at.", "au.", "av.", "aw.", "ax.", "ay.", "az."}
-    local i = 1
-    if absNumber >= 1000^#suffixes then
-        return string.format("%.2e", number)
-    end
-    while absNumber >= 1000 and i < #suffixes do
-        absNumber = absNumber / 1000
-        i = i + 1
-    end
-    local formattedString = string.format("%.2f", absNumber)
-    if string.find(formattedString, "%.00$") then
-        formattedString = string.gsub(formattedString, "%.00$", "")
-    elseif string.find(formattedString, "%.0$") then
-        formattedString = string.gsub(formattedString, "%.0$", "")
-    end
-    local finalString = formattedString .. " " .. suffixes[i]
-    if number < 0 then
-        return "-" .. finalString
-    else
-        return finalString
-    end
-end
-
 function TrainSystemGetAttribute(player, AttributeName)
     local config = player:FindFirstChild("Configuration")
     if config then
@@ -57,31 +62,106 @@ function TrainSystemGetAttribute(player, AttributeName)
     return 0
 end
 
-local function updatePowerText(player, powerNum)
+function updatePowerText(player, powerNum)
     local function calculateTotalPower(p)
         return TrainSystemGetAttribute(p, "1") + 
                TrainSystemGetAttribute(p, "2") + 
                TrainSystemGetAttribute(p, "3") + 
                TrainSystemGetAttribute(p, "4")
     end
+    
     local otherPower = calculateTotalPower(player)
     local playerPower = calculateTotalPower(LocalPlayer)
-    powerNum.Text = suffixValue(otherPower)
-    local white = Color3.new(1, 1, 1)
-    local electric_lime = Color3.fromRGB(204, 255, 0)
-    local cyan = Color3.fromRGB(0, 255, 255)
-    local ratio = 1
-    local powerColor
-    if playerPower > otherPower then
-        ratio = playerPower ~= 0 and otherPower / playerPower or 1
-        powerColor = electric_lime:Lerp(white, ratio)
-    elseif otherPower > playerPower then
-        ratio = otherPower ~= 0 and playerPower / otherPower or 1
-        powerColor = cyan:Lerp(white, ratio)
-    else
-        powerColor = white
+    local originalText = suffixValue(otherPower)
+    powerNum.Text = originalText
+
+    if not powerNum:GetAttribute("OriginalPos") then
+        powerNum:SetAttribute("OriginalPos", powerNum.Position)
     end
-    powerNum.TextColor3 = powerColor
+    local originalPos = powerNum:GetAttribute("OriginalPos")
+
+    local white = Color3.fromRGB(255, 255, 255)
+    local soft_lime = Color3.fromRGB(190, 255, 130)
+    local majestic_blue = Color3.fromRGB(0, 220, 255)
+    local crystal_white = Color3.fromRGB(220, 245, 255)
+    local diffRatio = playerPower ~= 0 and (otherPower / playerPower) or 1
+    
+    if powerNum:FindFirstChild("EffectLoop") then powerNum.EffectLoop:Destroy() end
+    local effectLoop = Instance.new("BoolValue")
+    effectLoop.Name = "EffectLoop"
+    effectLoop.Parent = powerNum
+
+    if otherPower > playerPower then
+        if diffRatio >= 1000000 then
+            local glitchTime = 0
+            local conn = RunService.RenderStepped:Connect(function(dt)
+                if not effectLoop or not effectLoop.Parent then return end
+                if glitchTime <= 0 and math.random() > 0.985 then
+                    glitchTime = 0.2 + (math.random() * 0.3)
+                end
+
+                if glitchTime > 0 then
+                    glitchTime = glitchTime - dt
+                    powerNum.TextColor3 = Color3.fromHSV(math.random(), 0.5, 1)
+                    powerNum.Position = originalPos + UDim2.new(0, math.random(-8, 8), 0, math.random(-8, 8))
+                    powerNum.Text = string.char(math.random(33, 126)) .. string.char(math.random(33, 126)) .. "!!"
+                    powerNum.TextTransparency = 0.4
+                else
+                    local shimmer = math.abs(math.sin(tick() * 3))
+                    powerNum.TextColor3 = crystal_white:Lerp(white, shimmer)
+                    powerNum.Position = originalPos
+                    powerNum.Text = originalText
+                    powerNum.TextTransparency = 0
+                end
+            end)
+            effectLoop.Destroying:Connect(function() conn:Disconnect() end)
+            
+        elseif diffRatio >= 10000 then
+            local progressToFinal = math.clamp((diffRatio - 10000) / 990000, 0, 1)
+            local currentColor = majestic_blue:Lerp(crystal_white, progressToFinal)
+            
+            local glitchTime = 0
+            local conn = RunService.RenderStepped:Connect(function(dt)
+                if not effectLoop or not effectLoop.Parent then return end
+                if glitchTime <= 0 and math.random() > 0.99 then glitchTime = 0.15 end
+
+                if glitchTime > 0 then
+                    glitchTime = glitchTime - dt
+                    local intensity = 4 + (4 * progressToFinal)
+                    powerNum.Position = originalPos + UDim2.new(0, math.random(-intensity, intensity), 0, math.random(-intensity, intensity))
+                    powerNum.TextTransparency = 0.5
+                else
+                    powerNum.TextColor3 = currentColor
+                    powerNum.Position = originalPos
+                    powerNum.TextTransparency = 0
+                end
+            end)
+            effectLoop.Destroying:Connect(function() conn:Disconnect() end)
+            
+        else
+            local ratio = math.clamp(diffRatio / 10000, 0, 1)
+            powerNum.TextColor3 = white:Lerp(majestic_blue, ratio)
+            powerNum.Position = originalPos
+            
+            local conn = RunService.RenderStepped:Connect(function()
+                if not effectLoop or not effectLoop.Parent then return end
+                local speed = 1 + (7 * ratio)
+                local pulse = math.sin(tick() * speed)
+                local intensity = 0.75 * ratio
+                powerNum.TextTransparency = math.clamp((pulse * 0.5 + 0.5) * intensity, 0, 0.8)
+            end)
+            effectLoop.Destroying:Connect(function() conn:Disconnect() end)
+        end
+    elseif playerPower > otherPower then
+        local ratio = math.clamp(otherPower / playerPower, 0, 1)
+        powerNum.TextColor3 = white:Lerp(soft_lime, 1 - ratio)
+        powerNum.TextTransparency = 0
+        powerNum.Position = originalPos
+    else
+        powerNum.TextColor3 = white
+        powerNum.TextTransparency = 0
+        powerNum.Position = originalPos
+    end
 end
 
 local pvpAreaGuiOn = PlayerGui:WaitForChild("SafeAreaGui"):WaitForChild("ContentFrame"):WaitForChild("On")
