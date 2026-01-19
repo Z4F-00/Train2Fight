@@ -6,7 +6,7 @@ local savedStatus = _G.loadFile(path, "Opening", true)
 if not savedStatus then return end
 
 local hubName = "VOID-00"
-local hubVersion = "v6.0"
+local hubVersion = "v6.3"
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
