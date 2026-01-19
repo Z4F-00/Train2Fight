@@ -1,0 +1,307 @@
+local hubName = "VOID-00"
+local hubVersion = "v6.3"
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Check = PlayerGui:FindFirstChild(hubName.."_UpdateLog")
+if Check then return end
+
+local sections = {} 
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = hubName.."_UpdateLog"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999999 
+screenGui.Parent = PlayerGui
+
+-- Main Frame Update Log
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 450, 0, 45)
+mainFrame.Position = UDim2.new(0.5, -225, 0.5, -22)
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = true 
+mainFrame.BackgroundTransparency = 1
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner", mainFrame)
+mainCorner.CornerRadius = UDim.new(0, 12)
+
+local mainStroke = Instance.new("UIStroke", mainFrame)
+mainStroke.Color = Color3.fromRGB(255, 215, 0)
+mainStroke.Thickness = 2.5
+mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+mainStroke.Transparency = 1
+
+local headerBg = Instance.new("Frame")
+headerBg.Size = UDim2.new(1, 0, 0, 45)
+headerBg.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+headerBg.BackgroundTransparency = 1
+headerBg.ZIndex = 5
+headerBg.Parent = mainFrame
+Instance.new("UICorner", headerBg).CornerRadius = UDim.new(0, 12)
+
+local hubTitle = Instance.new("TextLabel")
+hubTitle.Size = UDim2.new(0, 80, 0, 45)
+hubTitle.Position = UDim2.new(0, 15, 0, 0)
+hubTitle.BackgroundTransparency = 1
+hubTitle.Text = hubName
+hubTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
+hubTitle.Font = Enum.Font.GothamBold
+hubTitle.TextSize = 16
+hubTitle.TextTransparency = 1
+hubTitle.ZIndex = 12
+hubTitle.Parent = mainFrame
+
+local logSeparator = Instance.new("TextLabel")
+logSeparator.Size = UDim2.new(0, 20, 0, 45)
+logSeparator.BackgroundTransparency = 1
+logSeparator.Text = "-"
+logSeparator.TextColor3 = Color3.fromRGB(255, 215, 0)
+logSeparator.Font = Enum.Font.GothamBold
+logSeparator.TextSize = 16
+logSeparator.TextTransparency = 1
+logSeparator.ZIndex = 12
+logSeparator.Parent = mainFrame
+
+local logText = Instance.new("TextLabel")
+logText.Size = UDim2.new(0, 200, 0, 45)
+logText.BackgroundTransparency = 1
+logText.Text = "UPDATE LOG " .. hubVersion
+logText.TextColor3 = Color3.fromRGB(255, 215, 0)
+logText.Font = Enum.Font.GothamBold
+logText.TextSize = 16
+logText.TextXAlignment = Enum.TextXAlignment.Left
+logText.TextTransparency = 1
+logText.ZIndex = 12
+logText.Parent = mainFrame
+
+-- OUTRO TEXT (VOID-00 Teks Besar)
+local outroText = Instance.new("TextLabel")
+outroText.Name = "OutroText_VOID"
+outroText.Size = UDim2.new(0, 450, 0, 50)
+outroText.Position = UDim2.new(0.5, 0, 0.5, 0)
+outroText.AnchorPoint = Vector2.new(0.5, 0.5)
+outroText.BackgroundTransparency = 1
+outroText.Text = hubName
+outroText.TextColor3 = Color3.fromRGB(255, 215, 0)
+outroText.Font = Enum.Font.GothamBold
+outroText.TextSize = 50
+outroText.TextTransparency = 1
+outroText.ZIndex = 100 -- Pastikan paling depan
+outroText.Parent = screenGui
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -40, 0, 7)
+closeButton.BackgroundTransparency = 1
+closeButton.Text = "×"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextSize = 25
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextTransparency = 1 
+closeButton.ZIndex = 20
+closeButton.Parent = mainFrame
+
+local creditText = Instance.new("TextLabel")
+creditText.Size = UDim2.new(0, 100, 0, 20)
+creditText.Position = UDim2.new(1, -110, 1, -25)
+creditText.BackgroundTransparency = 1
+creditText.Text = "Created by Z4F_00"
+creditText.TextColor3 = Color3.fromRGB(255, 215, 0)
+creditText.Font = Enum.Font.GothamBold
+creditText.TextSize = 10
+creditText.TextTransparency = 1
+creditText.ZIndex = 10
+creditText.Parent = mainFrame
+
+local line = Instance.new("Frame")
+line.Size = UDim2.new(1, -30, 0, 1)
+line.Position = UDim2.new(0, 15, 0, 45)
+line.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+line.BackgroundTransparency = 1
+line.BorderSizePixel = 0
+line.ZIndex = 10
+line.Parent = mainFrame
+
+local contentContainer = Instance.new("ScrollingFrame")
+contentContainer.Size = UDim2.new(1, -20, 1, -65) -- Ukuran dinamis agar tidak kepotong bawah
+contentContainer.Position = UDim2.new(0, 10, 0, 50) -- Jarak 10px dari kiri, 50px dari atas (di bawah header)
+contentContainer.BackgroundTransparency = 1
+contentContainer.ScrollBarThickness = 2
+contentContainer.ScrollBarImageColor3 = Color3.fromRGB(255, 215, 0)
+contentContainer.BorderSizePixel = 0
+contentContainer.ClipsDescendants = true -- Ini agar list tetap rapi di dalam kotak
+contentContainer.ZIndex = 1
+contentContainer.Visible = false
+contentContainer.Parent = mainFrame
+
+local containerPadding = Instance.new("UIPadding", contentContainer)
+containerPadding.PaddingLeft = UDim.new(0, 5) 
+containerPadding.PaddingTop = UDim.new(0, 5)
+
+local uiList = Instance.new("UIListLayout", contentContainer)
+uiList.Padding = UDim.new(0, 12)
+uiList.SortOrder = Enum.SortOrder.LayoutOrder
+
+uiList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    contentContainer.CanvasSize = UDim2.new(0, 0, 0, uiList.AbsoluteContentSize.Y + 20)
+end)
+
+function createSection(title, desc)
+    local sectionFrame = Instance.new("Frame")
+    sectionFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    -- Ubah lebar ke 0.94 agar ada space di kiri dan kanan (mencegah kepotong)
+    sectionFrame.Size = UDim2.new(0.94, 0, 0, 0) 
+    sectionFrame.AutomaticSize = Enum.AutomaticSize.Y
+    sectionFrame.BackgroundTransparency = 1
+    sectionFrame.Parent = contentContainer
+    
+    local sStroke = Instance.new("UIStroke", sectionFrame)
+    sStroke.Color = Color3.fromRGB(255, 215, 0)
+    sStroke.Thickness = 1.2
+    sStroke.Transparency = 1
+    sStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border 
+    
+    local sTitle = Instance.new("TextLabel", sectionFrame)
+    sTitle.Size = UDim2.new(1, -20, 0, 30)
+    sTitle.Position = UDim2.new(0, 12, 0, 8) -- Geser 12px dari kiri frame section
+    sTitle.Text = "» " .. title
+    sTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
+    sTitle.Font = Enum.Font.GothamBold
+    sTitle.TextSize = 14
+    sTitle.BackgroundTransparency = 1
+    sTitle.TextTransparency = 1
+    sTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+    local sDesc = Instance.new("TextLabel", sectionFrame)
+    sDesc.Size = UDim2.new(1, -25, 0, 0)
+    sDesc.Position = UDim2.new(0, 12, 0, 38)
+    sDesc.Text = desc
+    sDesc.TextColor3 = Color3.fromRGB(220, 220, 220)
+    sDesc.Font = Enum.Font.Gotham
+    sDesc.TextSize = 12
+    sDesc.BackgroundTransparency = 1
+    sDesc.TextWrapped = true
+    sDesc.TextXAlignment = Enum.TextXAlignment.Left
+    sDesc.TextYAlignment = Enum.TextYAlignment.Top
+    sDesc.AutomaticSize = Enum.AutomaticSize.Y
+    sDesc.TextTransparency = 1
+    
+    Instance.new("UICorner", sectionFrame).CornerRadius = UDim.new(0, 8)
+    
+    -- Jarak aman di dalam section
+    local uip = Instance.new("UIPadding", sectionFrame)
+    uip.PaddingBottom = UDim.new(0, 15)
+    
+    table.insert(sections, {frame = sectionFrame, stroke = sStroke, title = sTitle, desc = sDesc})
+end
+
+createSection("Update v6.3: Power Insight Reborn", "• Dynamic Threat Indicator: Perubahan warna berdasarkan power.\n• Danger Pulse: Efek denyut peringatan bahaya.\n• System Glitch: Gangguan visual di level 10Kx.\n• Divine Tier: Crystal Shimmer di level 1Mx.\n• Efficiency: Performa UI lebih ringan.")
+createSection("OPCLICK", "Akses Gamepass paksa untuk Auto Train (3x Speed).")
+
+-- SHOW ANIMATION
+task.spawn(function()
+    TweenService:Create(mainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(mainStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
+    TweenService:Create(headerBg, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
+    
+    task.wait(0.2)
+    local introWidth = hubTitle.TextBounds.X
+    logSeparator.Position = UDim2.new(0, 15 + introWidth + 5, 0, 0)
+    logText.Position = UDim2.new(0, 15 + introWidth + 20, 0, 0)
+
+    TweenService:Create(hubTitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+    TweenService:Create(logSeparator, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+    TweenService:Create(logText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+    TweenService:Create(mainFrame, TweenInfo.new(0.7, Enum.EasingStyle.Quart), {
+        Size = UDim2.new(0, 450, 0, 330),
+        Position = UDim2.new(0.5, -225, 0.5, -165)
+    }):Play()
+    
+    task.wait(0.5)
+    TweenService:Create(closeButton, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+    TweenService:Create(creditText, TweenInfo.new(0.4), {TextTransparency = 0.5}):Play()
+    line.BackgroundTransparency = 0.5
+    contentContainer.Visible = true
+
+    for _, item in ipairs(sections) do
+        TweenService:Create(item.frame, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+        TweenService:Create(item.stroke, TweenInfo.new(0.3), {Transparency = 0.8}):Play()
+        TweenService:Create(item.title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+        TweenService:Create(item.desc, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+    end
+end)
+
+closeButton.MouseButton1Click:Connect(function()
+    contentContainer.Visible = false
+    line.BackgroundTransparency = 1
+    
+    -- Fade out isi header
+    TweenService:Create(closeButton, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+    TweenService:Create(creditText, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+    TweenService:Create(hubTitle, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+    TweenService:Create(logSeparator, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+    TweenService:Create(logText, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+    
+    -- Jendela mengecil
+    local closeTween = TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 450, 0, 45),
+        Position = UDim2.new(0.5, -225, 0.5, -22)
+    })
+    closeTween:Play()
+    
+    closeTween.Completed:Connect(function()
+        local blur = Instance.new("BlurEffect", Lighting)
+        blur.Size = 0
+        
+        -- TABEL MEMUDAR (TIDAK INSTAN)
+        TweenService:Create(mainFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(mainStroke, TweenInfo.new(0.8), {Transparency = 1}):Play()
+        TweenService:Create(headerBg, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+        
+        -- VOID-00 MUNCUL (DI LUAR KOTAK, TIDAK AKAN TERPOTONG)
+        TweenService:Create(blur, TweenInfo.new(0.8), {Size = 15}):Play()
+        local fadeInOutro = TweenService:Create(outroText, TweenInfo.new(0.8), {TextTransparency = 0})
+        fadeInOutro:Play()
+        
+        fadeInOutro.Completed:Connect(function()
+            task.wait(1)
+            
+            -- Fade out terakhir bersamaan
+            local finalFade = TweenService:Create(outroText, TweenInfo.new(0.8), {TextTransparency = 1})
+            finalFade:Play()
+            TweenService:Create(blur, TweenInfo.new(0.8), {Size = 0}):Play()
+            
+            finalFade.Completed:Connect(function()
+                blur:Destroy()
+                screenGui:Destroy()
+            end)
+        end)
+    end)
+end)
+
+-- Drag System Tetap Sama
+local dragging, dragStart, startPos
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+mainFrame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
