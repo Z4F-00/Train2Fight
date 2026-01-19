@@ -217,7 +217,12 @@ local function createSection(title, desc)
     table.insert(sections, {frame = sectionFrame, stroke = sStroke, title = sTitle, desc = sDesc})
 end
 
-createSection("HIGHLIGHT UPDATE v6.0", "Implementasi sistem Cinematic Intro & Opening dinamis berbasis efek blur layar. Re-desain menyeluruh pada antarmuka Update Log untuk estetika yang lebih modern. Selain itu, fitur Ghost Train kini telah resmi dialihkan menjadi FPS Train, yang dibarengi dengan optimasi struktur folder serta peningkatan akurasi pada sinkronisasi Save/Load data.")
+createSection("Update v6.3: Power Insight Reborn", 
+    "• Dynamic Threat Indicator: Warna teks kini berubah otomatis berdasarkan perbandingan kekuatan (Hijau = Aman, Biru = Bahaya).\n" ..
+    "• Danger Pulse: Lawan yang lebih kuat akan memberikan efek denyut (redup-terang) yang semakin cepat seiring meningkatnya ancaman.\n" ..
+    "• System Glitch: Sensor visual akan mulai mengalami gangguan (glitch) saat menghadapi lawan dengan selisih kekuatan 10.000x.\n" ..
+    "• Divine Tier: Lawan 1.000.000x lebih kuat akan tampil dengan warna Crystal Shimmer disertai kerusakan sistem (Heavy Glitch).\n" ..
+    "• Efficiency Focus: Integrasi logika angka v6.2 yang lebih ringan untuk menjaga stabilitas FPS.")
 createSection("OPCLICK", "Membuka akses Gamepass secara paksa untuk Auto Train, meningkatkan kecepatan latihan hingga 3x lipat.")
 createSection("FRENZY", "Memaksa Mode Frenzy aktif secara permanen, mempercepat latihan hingga 4x lipat di atas limit normal.")
 createSection("FPS TRAIN", "Latihan tanpa gerak yang sinkron dengan FPS. Jika digabung dengan Mode Frenzy, kecepatan menjadi 4x lipat lebih cepat.")
