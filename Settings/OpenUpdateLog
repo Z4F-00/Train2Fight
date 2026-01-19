@@ -1,0 +1,75 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local settingFrame = PlayerGui:WaitForChild("SettingGui"):WaitForChild("ContentFrame"):WaitForChild("SettingFrame"):WaitForChild("SettingScrolling")
+settingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+settingFrame.ScrollBarThickness = 0
+
+local SettingItem = settingFrame.SettingItem
+
+local function createUpdateLogButtonGui()
+    if settingFrame:FindFirstChild("UpdateLogSetting") then return end
+
+    local updateLogButton = SettingItem:Clone()
+    updateLogButton.Name = "UpdateLogSetting"
+    updateLogButton.Parent = settingFrame
+    updateLogButton.Visible = true
+
+    for _, child in pairs(updateLogButton:GetChildren()) do
+        if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then
+            child:Destroy()
+        end
+    end
+
+    local SetItemName = updateLogButton:WaitForChild("SetItemName")
+    SetItemName.Text = "Update Log"
+    SetItemName.Position = UDim2.new(0.3, 0, 0.474, 0)
+
+    local btnFrame = Instance.new("Frame")
+    btnFrame.Name = "BtnFrame"
+    btnFrame.Size = UDim2.new(0.18, 0, 0.6, 0)
+    btnFrame.Position = UDim2.new(0.85, 0, 0.5, 0)
+    btnFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    btnFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btnFrame.BorderSizePixel = 0
+    btnFrame.Parent = updateLogButton
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.2, 0)
+    corner.Parent = btnFrame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(255, 215, 0)
+    stroke.Thickness = 1.2
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Parent = btnFrame
+
+    local btnText = Instance.new("TextLabel")
+    btnText.Size = UDim2.new(1, 0, 1, 0)
+    btnText.BackgroundTransparency = 1
+    btnText.Text = "VIEW"
+    btnText.TextColor3 = Color3.fromRGB(255, 215, 0)
+    btnText.Font = Enum.Font.GothamBold
+    btnText.TextSize = 12
+    btnText.Parent = btnFrame
+
+    local clickButton = Instance.new("TextButton")
+    clickButton.Name = "ClickButton"
+    clickButton.Size = UDim2.new(1, 0, 1, 0)
+    clickButton.BackgroundTransparency = 1
+    clickButton.Text = ""
+    clickButton.Parent = btnFrame
+
+    clickButton.MouseButton1Down:Connect(function()
+        TweenService:Create(btnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+    end)
+
+    clickButton.MouseButton1Up:Connect(function()
+        TweenService:Create(btnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/UpdateLog"))()
+    end)
+end
+
+createUpdateLogButtonGui()
