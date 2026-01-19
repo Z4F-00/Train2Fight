@@ -23,7 +23,7 @@ local tweenInfo
 
 function suffixValue(number)
     local absNumber = math.abs(number)
-    local suffixes = {"", "K", "M", "B", "T", "Qa.", "Qi.", "aa.", "ab.", "ac.", "ad.", "ae.", "af.", "ag.", "ah.", "ai.", "aj.", "ak.", "al.", "am.", "an.", "op.", "aq.", "ar.", "as.", "at.", "au.", "av.", "aw.", "ax.", "ay.", "az."}
+    local suffixes = {"", "K", "M", "B", "T", "Qa.", "Qi.", "aa.", "ab.", "ac.", "ad.", "ae.", "af.", "ag.", "ah.", "ai.", "aj.", "ak.", "al.", "am.", "an.", "ap.", "aq.", "ar.", "as.", "at.", "au.", "av.", "aw.", "ax.", "ay.", "az."}
     local i = 1
     if absNumber >= 1000^#suffixes then
         return string.format("%.2e", number)
