@@ -1,3 +1,14 @@
+local playerSpeedSetting = settingScrolling:FindFirstChild("playerSpeedSetting")
+
+if not playerSpeedSetting then
+    playerSpeedSetting = tamplate:Clone()
+    playerSpeedSetting.Name = "playerSpeedSetting"
+    playerSpeedSetting.Parent = settingScrolling
+    playerSpeedSetting.Visible = true
+else
+    return 
+end
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -39,6 +50,8 @@ local setItemMinNumText2Num = tonumber(setItemMinNum.Text)
 
 local configuration = Player:WaitForChild("Configuration")
 local trainSystem = configuration:WaitForChild("TrainSystem")
+
+repeat task.wait() until _G.loadFile and _G.saveFile
 
 local path = "Z4F Script/Train to Fight/Settings"
 local savedSpeed = _G.loadFile(path, "PlayerSpeed", setItemMinNumText2Num)
