@@ -1,0 +1,289 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
+
+local allSuffixes = (function()
+    local s = {"", "K", "M", "B", "T", "Qa.", "Qi."}
+    local alphabet = "abcdefghijklmnopqrstuvwxyz"
+    for i = 1, #alphabet do
+        local char1 = string.sub(alphabet, i, i)
+        for j = 1, #alphabet do
+            table.insert(s, char1 .. string.sub(alphabet, j, j) .. ".")
+        end
+    end
+    return s
+end)()
+
+function suffixValue(number)
+    local absNumber = math.abs(number)
+    if absNumber == 0 then return "0" end
+    local i = math.floor(math.log(absNumber, 1000)) + 1
+    if i > #allSuffixes then return string.format("%.2e", number) end
+    local shortened = absNumber / (1000 ^ (i - 1))
+    local formatted = string.format("%.2f", shortened):gsub("%.?0+$", "")
+    local res = formatted .. " " .. allSuffixes[i]
+    return number < 0 and "-" .. res or res
+end
+
+local settingFrame = PlayerGui:WaitForChild("SettingGui"):WaitForChild("ContentFrame"):WaitForChild("SettingFrame"):WaitForChild("SettingScrolling")
+local SettingItem = settingFrame:WaitForChild("SettingItem")
+settingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+settingFrame.ScrollBarThickness = 0
+
+repeat task.wait() until _G.loadFile and _G.saveFile
+
+local path = "Z4F Script/Train to Fight/Settings"
+local isPowerTagsActive = _G.loadFile(path, "ShowPower", true)
+local isRespectTagsActive = _G.loadFile(path, "ShowRespect", true)
+local pvpAreaGuiOn = PlayerGui:WaitForChild("SafeAreaGui"):WaitForChild("ContentFrame"):WaitForChild("On")
+local tweenInfo = TweenInfo.new(0.167, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+function TrainSystemGetAttribute(player, AttributeName)
+    local config = player:FindFirstChild("Configuration")
+    local trainSystem = config and config:FindFirstChild("TrainSystem")
+    return trainSystem and trainSystem:GetAttribute(AttributeName) or 0
+end
+
+function getRespectAttribute(player)
+    local config = player:FindFirstChild("Configuration")
+    local reputation = config and config:FindFirstChild("Reputation")
+    return reputation and reputation:GetAttribute("CurrReputation") or 0
+end
+
+function updatePowerText(player, powerNum)
+    local function calculateTotalPower(p)
+        return TrainSystemGetAttribute(p, "1") + TrainSystemGetAttribute(p, "2") + 
+               TrainSystemGetAttribute(p, "3") + TrainSystemGetAttribute(p, "4")
+    end
+    
+    local otherPower = calculateTotalPower(player)
+    local playerPower = calculateTotalPower(LocalPlayer)
+    local originalText = suffixValue(otherPower)
+    powerNum.Text = originalText
+
+    if not powerNum:GetAttribute("OriginalPos") then powerNum:SetAttribute("OriginalPos", powerNum.Position) end
+    local originalPos = powerNum:GetAttribute("OriginalPos")
+    
+    local white = Color3.fromRGB(255, 255, 255)
+    local soft_lime = Color3.fromRGB(190, 255, 130)
+    local majestic_blue = Color3.fromRGB(0, 220, 255)
+    local crystal_white = Color3.fromRGB(220, 245, 255)
+    local diffRatio = playerPower ~= 0 and (otherPower / playerPower) or 1
+    
+    if powerNum:FindFirstChild("EffectLoop") then powerNum.EffectLoop:Destroy() end
+    local effectLoop = Instance.new("BoolValue", powerNum)
+    effectLoop.Name = "EffectLoop"
+
+    if otherPower > playerPower then
+        if diffRatio >= 1000000 then
+            local glitchTime = 0
+            local conn = RunService.RenderStepped:Connect(function(dt)
+                if not effectLoop or not effectLoop.Parent then return end
+                if glitchTime <= 0 and math.random() > 0.985 then glitchTime = 0.2 + (math.random() * 0.3) end
+                if glitchTime > 0 then
+                    glitchTime = glitchTime - dt
+                    powerNum.TextColor3 = Color3.fromHSV(math.random(), 0.5, 1)
+                    powerNum.Position = originalPos + UDim2.new(0, math.random(-4, 4), 0, math.random(-4, 4))
+                    powerNum.Text = "!!" .. string.char(math.random(33, 126)) .. "!!"
+                else
+                    powerNum.TextColor3 = crystal_white:Lerp(white, math.abs(math.sin(tick() * 3)))
+                    powerNum.Position = originalPos
+                    powerNum.Text = originalText
+                end
+            end)
+            effectLoop.Destroying:Connect(function() conn:Disconnect() end)
+        else
+            powerNum.Position = originalPos
+            powerNum.TextColor3 = (diffRatio >= 10000) and majestic_blue:Lerp(crystal_white, math.clamp((diffRatio-10000)/990000, 0, 1)) or white:Lerp(majestic_blue, math.clamp(diffRatio/10000, 0, 1))
+        end
+    else
+        powerNum.TextColor3 = (playerPower > otherPower) and white:Lerp(soft_lime, 1 - math.clamp(otherPower/playerPower, 0, 1)) or white
+        powerNum.Position = originalPos
+    end
+end
+
+local function refreshTagLayout(billboard)
+    local power = billboard:FindFirstChild("powerGui")
+    local respect = billboard:FindFirstChild("respectGui")
+    
+    local showP = isPowerTagsActive or pvpAreaGuiOn.Visible
+    local showR = isRespectTagsActive or pvpAreaGuiOn.Visible
+
+    if power then power.Visible = showP end
+    if respect then respect.Visible = showR end
+
+    if showP and showR then
+        respect.Position = UDim2.new(0.5, 0, 0.325, 0)
+        power.Position = UDim2.new(0.5, 0, 0.725, 0)
+    elseif showP then
+        power.Position = UDim2.new(0.5, 0, 0.5, 0)
+    elseif showR then
+        respect.Position = UDim2.new(0.5, 0, 0.5, 0)
+    end
+end
+
+local function updateAllTags()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local head = player.Character:FindFirstChild("Head")
+            local bill = head and head:FindFirstChild("playerTagGui")
+            if bill then refreshTagLayout(bill) end
+        end
+    end
+end
+
+local function createToggle(name, label, defaultValue, callback)
+    local item = SettingItem:Clone()
+    item.Name = name
+    item.Parent = settingFrame
+    item.Visible = true
+    for _, child in pairs(item:GetChildren()) do
+        if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then child:Destroy() end
+    end
+    item.SetItemName.Text = label
+    
+    local toggleFrame = Instance.new("Frame", item)
+    toggleFrame.Size = UDim2.new(0.15, 0, 0.553, 0)
+    toggleFrame.Position = UDim2.new(0.85, 0, 0.5, 0)
+    toggleFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    toggleFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    Instance.new("UICorner", toggleFrame).CornerRadius = UDim.new(0.15, 0)
+
+    local stroke = Instance.new("UIStroke", toggleFrame)
+    stroke.Thickness = 1.2
+    stroke.Transparency = 0.5
+
+    local box = Instance.new("Frame", toggleFrame)
+    box.Size = UDim2.new(0.49, 0, 0.8, 0)
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0.1, 0)
+
+    local btn = Instance.new("TextButton", toggleFrame)
+    btn.Size = UDim2.new(1, 0, 1, 0)
+    btn.BackgroundTransparency = 1
+    btn.Text = ""
+
+    local currentVal = defaultValue
+    local function updateVisuals(val)
+        currentVal = val
+        local onCol = Color3.fromRGB(255, 248, 45)
+        local offCol = Color3.new(1, 1, 1)
+        TweenService:Create(box, tweenInfo, {
+            Position = val and UDim2.new(0.465, 0, 0.1, 0) or UDim2.new(0.05, 0, 0.1, 0),
+            BackgroundColor3 = val and onCol or offCol
+        }):Play()
+        TweenService:Create(stroke, tweenInfo, {Color = val and onCol or offCol}):Play()
+        callback(val)
+    end
+
+    btn.MouseButton1Click:Connect(function() updateVisuals(not currentVal) end)
+    updateVisuals(defaultValue)
+end
+
+function createTag(player)
+    if player == LocalPlayer then return end
+    local char = player.Character or player.CharacterAdded:Wait()
+    local head = char:WaitForChild("Head")
+    
+    if head:FindFirstChild("playerTagGui") then
+        head.playerTagGui:Destroy()
+    end
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "playerTagGui"
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(4.5, 0, 7, 0) 
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 300
+    billboard.LightInfluence = 0
+    billboard.StudsOffset = Vector3.new(0, 2, 0) 
+    billboard.Parent = head
+
+    local powerArea = PlayerGui.MainGui.LeftFrame.LeftButtonArea.PowerArea:Clone()
+    powerArea.Name = "powerGui"
+    powerArea.Size = UDim2.new(1.6, 0, 0.35, 0)
+    powerArea.AnchorPoint = Vector2.new(0.5, 0.5)
+    powerArea.Parent = billboard
+    
+    if powerArea:FindFirstChild("PowerButton") then
+        powerArea.PowerButton.Size = UDim2.new(1, 0, 1, 0)
+        powerArea.PowerButton.Position = UDim2.new(0.5, 0, 0.5, 0)
+        powerArea.PowerButton.AnchorPoint = Vector2.new(0.5, 0.5)
+    end
+
+    local respectArea = PlayerGui.MainGui.LeftFrame.LeftButtonArea.ReputationArea:Clone()
+    respectArea.Name = "respectGui"
+    respectArea.Size = UDim2.new(1.6, 0, 0.45, 0)
+    respectArea.AnchorPoint = Vector2.new(0.5, 0.5)
+    
+    if respectArea.ReputationButton:FindFirstChild("AddFrame") then
+        respectArea.ReputationButton.AddFrame:Destroy()
+    end
+    
+    if respectArea:FindFirstChild("ReputationButton") then
+        respectArea.ReputationButton.Size = UDim2.new(1, 0, 1, 0)
+        respectArea.ReputationButton.Position = UDim2.new(0.5, 0, 0.5, 0)
+        respectArea.ReputationButton.AnchorPoint = Vector2.new(0.5, 0.5)
+    end
+    respectArea.Parent = billboard
+
+    task.spawn(function()
+        local config = player:WaitForChild("Configuration", 20)
+        if not config then return end
+        
+        local train = config:WaitForChild("TrainSystem", 20)
+        local rep = config:WaitForChild("Reputation", 20)
+        
+        if train then
+            for i = 1, 4 do
+                train:GetAttributeChangedSignal(tostring(i)):Connect(function() 
+                    updatePowerText(player, powerArea.PowerButton.PowerNum) 
+                end)
+            end
+            updatePowerText(player, powerArea.PowerButton.PowerNum)
+        end
+        
+        if rep then
+            rep:GetAttributeChangedSignal("CurrReputation"):Connect(function()
+                respectArea.ReputationButton.Num.Text = suffixValue(getRespectAttribute(player))
+            end)
+            respectArea.ReputationButton.Num.Text = suffixValue(getRespectAttribute(player))
+        end
+    end)
+
+    local function applyLayout()
+        local showP = isPowerTagsActive or pvpAreaGuiOn.Visible
+        local showR = isRespectTagsActive or pvpAreaGuiOn.Visible
+
+        powerArea.Visible = showP
+        respectArea.Visible = showR
+
+        if showP and showR then
+            respectArea.Position = UDim2.new(0.5, 0, 0.325, 0)
+            powerArea.Position = UDim2.new(0.5, 0, 0.725, 0)
+        elseif showP then
+            powerArea.Position = UDim2.new(0.5, 0, 0.5, 0)
+        elseif showR then
+            respectArea.Position = UDim2.new(0.5, 0, 0.5, 0)
+        end
+    end
+
+    applyLayout()
+    billboard.AttributeChanged:Connect(applyLayout) 
+end
+
+createToggle("PowerTagsSetting", "Show Player Power", isPowerTagsActive, function(v)
+    isPowerTagsActive = v
+    _G.saveFile(path, "ShowPower", v)
+    updateAllTags()
+end)
+
+createToggle("RespectTagsSetting", "Show Player Respect", isRespectTagsActive, function(v)
+    isRespectTagsActive = v
+    _G.saveFile(path, "ShowRespect", v)
+    updateAllTags()
+end)
+
+Players.PlayerAdded:Connect(function(p) p.CharacterAdded:Connect(function() createTag(p) end) end)
+for _, p in ipairs(Players:GetPlayers()) do createTag(p) end
