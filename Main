@@ -7,7 +7,7 @@ local MultiLink = {
     settingsFolder .. "PlayerSpeed",
     settingsFolder .. "AntiAfk",
     settingsFolder .. "PVP(SafeAreaGui)",
-    settingsFolder .. "ShowPlayerPower",
+    settingsFolder .. "ShowPowerAndRespect",
     settingsFolder .. "FPSTrain",
     settingsFolder .. "FPSTrainPlus",
     settingsFolder .. "Frenzy",
