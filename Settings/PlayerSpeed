@@ -1,14 +1,3 @@
-local playerSpeedSetting = settingScrolling:FindFirstChild("playerSpeedSetting")
-
-if not playerSpeedSetting then
-    playerSpeedSetting = tamplate:Clone()
-    playerSpeedSetting.Name = "playerSpeedSetting"
-    playerSpeedSetting.Parent = settingScrolling
-    playerSpeedSetting.Visible = true
-else
-    return 
-end
-
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -16,7 +5,6 @@ local RunService = game:GetService("RunService")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 local Character = Player.Character or Player.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
 
 local settingGui = PlayerGui:WaitForChild("SettingGui")
 local contentFrame = settingGui:WaitForChild("ContentFrame")
@@ -27,7 +15,11 @@ settingScrolling.ScrollBarThickness = 0
 
 local tamplate = settingScrolling:WaitForChild("SettingItem")
 
-local playerSpeedSetting = tamplate:Clone()
+local playerSpeedSetting = settingScrolling:FindFirstChild("playerSpeedSetting")
+
+if playerSpeedSetting then return end
+
+playerSpeedSetting = tamplate:Clone()
 playerSpeedSetting.Name = "playerSpeedSetting"
 playerSpeedSetting.Parent = settingScrolling
 playerSpeedSetting.Visible = true
@@ -46,7 +38,7 @@ local progressClickBut = progressFrame:WaitForChild("ProgressClickBut")
 
 local setItemMinNum = playerSpeedSetting:WaitForChild("SetItemMinNum")
 setItemMinNum.Text = "16"
-local setItemMinNumText2Num = tonumber(setItemMinNum.Text)
+local setItemMinNumText2Num = tonumber(setItemMinNum.Text) or 16
 
 local configuration = Player:WaitForChild("Configuration")
 local trainSystem = configuration:WaitForChild("TrainSystem")
@@ -58,24 +50,26 @@ local savedSpeed = _G.loadFile(path, "PlayerSpeed", setItemMinNumText2Num)
 trainSystem:SetAttribute("PlayerSpeed", savedSpeed)
 
 local isDragging = false
+local lastSavedValue = savedSpeed
 
 for _, child in pairs(playerSpeedSetting:GetChildren()) do
-    if child.Name ~= "SetItemName" and child.Name ~= "UICorner" and child.Name ~= "ProgressFrame" and child.Name ~= "SetItemCurNum" and child.Name ~= "SetItemMinNum" then
+    if not table.find({"SetItemName", "UICorner", "ProgressFrame", "SetItemCurNum", "SetItemMinNum"}, child.Name) then
         child:Destroy()
     end
 end
 
 local function updateSlider(inputPosition: Vector2)
-    local relativeMouseX = inputPosition.X - sliderAndLine.AbsolutePosition.X
-    local sliderLineWidth = sliderAndLine.AbsoluteSize.X
-    local clampedX = math.clamp(relativeMouseX, 0, sliderLineWidth)
-    local percentage = clampedX / sliderLineWidth
+    local sliderWidth = sliderAndLine.AbsoluteSize.X
+    if sliderWidth <= 0 then return end
+
+    local relativeX = inputPosition.X - sliderAndLine.AbsolutePosition.X
+    local percentage = math.clamp(relativeX / sliderWidth, 0, 1)
     
     sliderFrame.Position = UDim2.new(percentage, 0, sliderFrame.Position.Y.Scale, 0)
     line.Size = UDim2.new(percentage, 0, line.Size.Y.Scale, 0)
     
     local speedValue = percentage * (100 - setItemMinNumText2Num) + setItemMinNumText2Num
-    local flooredSpeed = math.floor(speedValue + 0.5)
+    local flooredSpeed = math.round(speedValue)
     
     if trainSystem:GetAttribute("PlayerSpeed") ~= flooredSpeed then
         setItemCurNum.Text = tostring(flooredSpeed)
@@ -83,32 +77,36 @@ local function updateSlider(inputPosition: Vector2)
     end
 end
 
-progressClickBut.InputBegan:Connect(function(input: InputObject, gameProcessedEvent: boolean)
-    if gameProcessedEvent then return end
+progressClickBut.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         isDragging = true
         updateSlider(input.Position)
     end
 end)
 
-UserInputService.InputChanged:Connect(function(input: InputObject, gameProcessedEvent: boolean)
+UserInputService.InputChanged:Connect(function(input)
     if not isDragging then return end
     if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         updateSlider(input.Position)
     end
 end)
 
-UserInputService.InputEnded:Connect(function(input: InputObject)
+UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         if isDragging then
             isDragging = false
-            _G.saveFile(path, "PlayerSpeed", trainSystem:GetAttribute("PlayerSpeed"))
+            local currentVal = trainSystem:GetAttribute("PlayerSpeed")
+            if currentVal ~= lastSavedValue then
+                lastSavedValue = currentVal
+                _G.saveFile(path, "PlayerSpeed", currentVal)
+            end
         end
     end
 end)
 
 local currentSpeedAttr = trainSystem:GetAttribute("PlayerSpeed")
-local initialPercentage = (currentSpeedAttr - setItemMinNumText2Num) / (100 - setItemMinNumText2Num)
+local initialPercentage = math.clamp((currentSpeedAttr - setItemMinNumText2Num) / (100 - setItemMinNumText2Num), 0, 1)
 sliderFrame.Position = UDim2.new(initialPercentage, 0, sliderFrame.Position.Y.Scale, 0)
 line.Size = UDim2.new(initialPercentage, 0, line.Size.Y.Scale, 0)
 setItemCurNum.Text = tostring(currentSpeedAttr)
@@ -116,7 +114,7 @@ setItemCurNum.Text = tostring(currentSpeedAttr)
 RunService.Heartbeat:Connect(function()
     if Character and Character:FindFirstChild("Humanoid") then
         local targetSpeed = trainSystem:GetAttribute("PlayerSpeed")
-        if Character.Humanoid.WalkSpeed ~= targetSpeed then
+        if targetSpeed and Character.Humanoid.WalkSpeed ~= targetSpeed then
             Character.Humanoid.WalkSpeed = targetSpeed
         end
     end
@@ -124,5 +122,4 @@ end)
 
 Player.CharacterAdded:Connect(function(newChar)
     Character = newChar
-    Humanoid = newChar:WaitForChild("Humanoid")
 end)
