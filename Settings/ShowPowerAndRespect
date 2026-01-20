@@ -181,7 +181,7 @@ local function createToggle(name, label, defaultValue, callback)
     updateVisuals(defaultValue)
 end
 
-function createTag(player)
+local function createTag(player)
     if player == LocalPlayer then return end
     local char = player.Character or player.CharacterAdded:Wait()
     local head = char:WaitForChild("Head")
@@ -202,7 +202,7 @@ function createTag(player)
 
     local powerArea = PlayerGui.MainGui.LeftFrame.LeftButtonArea.PowerArea:Clone()
     powerArea.Name = "powerGui"
-    powerArea.Size = UDim2.new(1.6, 0, 0.35, 0)
+    powerArea.Size = UDim2.new(1.6, 0, 0.3, 0)
     powerArea.AnchorPoint = Vector2.new(0.5, 0.5)
     powerArea.Parent = billboard
     
@@ -214,9 +214,11 @@ function createTag(player)
 
     local respectArea = PlayerGui.MainGui.LeftFrame.LeftButtonArea.ReputationArea:Clone()
     respectArea.Name = "respectGui"
-    respectArea.Size = UDim2.new(1.6, 0, 0.45, 0)
+    respectArea.Size = UDim2.new(1.6, 0, 0.5, 0)
     respectArea.AnchorPoint = Vector2.new(0.5, 0.5)
     
+    local respectIcon = respectArea.ReputationButton.Icon
+
     if respectArea.ReputationButton:FindFirstChild("AddFrame") then
         respectArea.ReputationButton.AddFrame:Destroy()
     end
@@ -227,6 +229,15 @@ function createTag(player)
         respectArea.ReputationButton.AnchorPoint = Vector2.new(0.5, 0.5)
     end
     respectArea.Parent = billboard
+
+    local function updateReputationIcon()
+        local BindablePath = game:GetService("ReplicatedStorage"):WaitForChild("Reputation"):WaitForChild("Bindable")
+        local GetReputationTitleIcon = BindablePath:WaitForChild("GetReputationTitleIcon")
+        local success, iconId = GetReputationTitleIcon:Invoke(player)
+        if iconId then
+            respectIcon.Image = iconId
+        end
+    end
 
     task.spawn(function()
         local config = player:WaitForChild("Configuration", 20)
@@ -247,9 +258,19 @@ function createTag(player)
         if rep then
             rep:GetAttributeChangedSignal("CurrReputation"):Connect(function()
                 respectArea.ReputationButton.Num.Text = suffixValue(getRespectAttribute(player))
+                updateReputationIcon()
             end)
             respectArea.ReputationButton.Num.Text = suffixValue(getRespectAttribute(player))
+            updateReputationIcon()
         end
+
+        local GlobalBindable = game:GetService("ReplicatedStorage"):WaitForChild("Reputation"):WaitForChild("Bindable")
+        local TitleChangedEvent = GlobalBindable:WaitForChild("ReputationTitleHasChanged")
+        TitleChangedEvent.Event:Connect(function(changedPlayer)
+            if changedPlayer == player then
+                updateReputationIcon()
+            end
+        end)
     end)
 
     local function applyLayout()
@@ -260,8 +281,8 @@ function createTag(player)
         respectArea.Visible = showR
 
         if showP and showR then
-            respectArea.Position = UDim2.new(0.5, 0, 0.325, 0)
-            powerArea.Position = UDim2.new(0.5, 0, 0.725, 0)
+            respectArea.Position = UDim2.new(0.5, 0, 0.25, 0)
+            powerArea.Position = UDim2.new(0.5, 0, 0.65, 0)
         elseif showP then
             powerArea.Position = UDim2.new(0.5, 0, 0.5, 0)
         elseif showR then
