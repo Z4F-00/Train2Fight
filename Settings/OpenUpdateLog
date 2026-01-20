@@ -29,31 +29,36 @@ local function createUpdateLogButtonGui()
 
     local btnFrame = Instance.new("Frame")
     btnFrame.Name = "BtnFrame"
-    btnFrame.Size = UDim2.new(0.18, 0, 0.6, 0)
+    btnFrame.Size = UDim2.new(0.15, 0, 0.55, 0)
     btnFrame.Position = UDim2.new(0.85, 0, 0.5, 0)
     btnFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-    btnFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btnFrame.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
     btnFrame.BorderSizePixel = 0
     btnFrame.Parent = updateLogButton
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0.2, 0)
+    corner.CornerRadius = UDim.new(0.15, 0)
     corner.Parent = btnFrame
 
     local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(255, 215, 0)
+    stroke.Color = Color3.fromRGB(255, 255, 255)
     stroke.Thickness = 1.2
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Transparency = 0.3
     stroke.Parent = btnFrame
 
     local btnText = Instance.new("TextLabel")
     btnText.Size = UDim2.new(1, 0, 1, 0)
     btnText.BackgroundTransparency = 1
     btnText.Text = "VIEW"
-    btnText.TextColor3 = Color3.fromRGB(255, 215, 0)
+    btnText.TextColor3 = Color3.fromRGB(40, 40, 40)
     btnText.Font = Enum.Font.GothamBold
     btnText.TextSize = 12
     btnText.Parent = btnFrame
+
+    local clickSound = Instance.new("Sound")
+    clickSound.SoundId = "rbxasset://sounds/uiclick.wav"
+    clickSound.Volume = 2
+    clickSound.Parent = btnFrame 
 
     local clickButton = Instance.new("TextButton")
     clickButton.Name = "ClickButton"
@@ -63,11 +68,13 @@ local function createUpdateLogButtonGui()
     clickButton.Parent = btnFrame
 
     clickButton.MouseButton1Down:Connect(function()
-        TweenService:Create(btnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+        if not clickSound.IsLoaded then clickSound.Loaded:Wait() end
+        clickSound:Play()
+        TweenService:Create(btnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
     end)
 
     clickButton.MouseButton1Up:Connect(function()
-        TweenService:Create(btnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+        TweenService:Create(btnFrame, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(200, 200, 200)}):Play()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/UpdateLog"))()
     end)
 end
