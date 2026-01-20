@@ -1,5 +1,5 @@
 local hubName = "VOID-00"
-local hubVersion = "v6.3"
+local hubVersion = "v6.5"
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
