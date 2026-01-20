@@ -198,8 +198,33 @@ function createSection(title, desc)
     table.insert(sections, {frame = sectionFrame, stroke = sStroke, title = sTitle, desc = sDesc})
 end
 
-createSection("Update v6.3: Power Insight Reborn", "• Dynamic Threat Indicator: Perubahan warna berdasarkan power.\n• Danger Pulse: Efek denyut peringatan bahaya.\n• System Glitch: Gangguan visual di level 10Kx.\n• Divine Tier: Crystal Shimmer di level 1Mx.\n• Efficiency: Performa UI lebih ringan.")
-createSection("OPCLICK", "Akses Gamepass paksa untuk Auto Train (3x Speed).")
+createSection("Update v6.5: HONOR & RESPECT", 
+    "• Show Respect System: Fitur interaksi baru untuk memberikan apresiasi kepada pemain lain.\n" ..
+    "• Respect Animation: Animasi khusus saat melakukan Show Respect di area latihan.\n" ..
+    "• Global Counter: Melacak jumlah respect yang diterima untuk meningkatkan reputasi visual.")
+createSection("Update v6.4: UI REFINED", 
+    "• New Update Log System: Tampilan UI log yang lebih modern dan interaktif.\n" ..
+    "• VOID-00 Outro: Penambahan animasi transisi 'VOID-00' saat menutup jendela.\n" ..
+    "• Settings Integration: Akses Update Log kini tersedia langsung melalui menu Setting.\n" ..
+    "• Visual Polish: Perbaikan transparansi dan sinkronisasi blur pada transisi menu.")
+createSection("Update v6.3: Power Insight Reborn", 
+    "• Dynamic Threat Indicator: Warna teks otomatis berubah (Hijau = Aman, Biru = Bahaya).\n" ..
+    "• Danger Pulse: Efek denyut peringatan pada lawan yang jauh lebih kuat.\n" ..
+    "• System Glitch: Sensor visual mengalami gangguan saat lawan 10.000x lebih kuat.\n" ..
+    "• Divine Tier: Efek Crystal Shimmer & Heavy Glitch untuk lawan 1.000.000x lebih kuat.")
+createSection("Update v6.2: Core Optimization", 
+    "• Efficiency Focus: Optimalisasi logika perhitungan angka besar untuk menjaga stabilitas FPS.\n" ..
+    "• Data Sync: Sinkronisasi data yang lebih cepat saat berpindah antar area latihan.")
+createSection("OPCLICK", "Membuka akses Gamepass secara paksa untuk Auto Train, meningkatkan kecepatan latihan hingga 3x lipat.")
+createSection("FRENZY", "Memaksa Mode Frenzy aktif secara permanen, mempercepat latihan hingga 4x lipat di atas limit normal.")
+createSection("FPS TRAIN", "Latihan tanpa gerak yang sinkron dengan FPS. Jika digabung dengan Mode Frenzy, kecepatan menjadi 4x lipat lebih cepat.")
+createSection("FPS TRAIN+", "Versi overclock dari FPS Train yang mendorong limit server secara ekstrem untuk statistik hingga jutaan.")
+createSection("PVP SYSTEM", "Bypass area pertempuran secara instan melalui sistem Remote Server.")
+createSection("SHOW POWER", "Menampilkan total power pemain lain secara real-time di atas karakter mereka.")
+createSection("SHOW RESPECT", 
+    "• Real-Time Respect Tag: Menampilkan jumlah Respect pemain lain secara instan tepat di atas karakter mereka.\n" ..
+    "• Visual Indicator: Memudahkan identitas reputasi pemain lain secara langsung tanpa harus membuka menu.")
+createSection("ANTI AFK & SPEED", "Sistem anti-disconnect dan kustomisasi kecepatan gerak karakter yang stabil.")
 
 task.spawn(function()
     TweenService:Create(mainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
