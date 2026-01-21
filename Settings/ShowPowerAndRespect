@@ -143,6 +143,7 @@ local function createToggle(name, label, defaultValue, callback)
         if child.Name ~= "SetItemName" and child.Name ~= "UICorner" then child:Destroy() end
     end
     item.SetItemName.Text = label
+    item.SetItemName.Position = UDim2.new(0.3, 0, 0.474, 0)
     
     local toggleFrame = Instance.new("Frame", item)
     toggleFrame.Size = UDim2.new(0.15, 0, 0.553, 0)
