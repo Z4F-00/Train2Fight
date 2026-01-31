@@ -1,0 +1,166 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local screen = workspace.CurrentCamera.ViewportSize
+
+local UI = Instance.new("ScreenGui")
+UI.Name = "KillsMonitor"
+UI.IgnoreGuiInset = true
+UI.ResetOnSpawn = false
+UI.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, screen.X * 0.5, 0, screen.Y * 0.7)
+Main.Position = UDim2.new(0, screen.X * 0.25, 0, screen.Y * 0.15)
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+Main.BorderSizePixel = 0
+Main.Active = true 
+Main.ClipsDescendants = true
+Main.Parent = UI
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
+
+local ResizeHandle = Instance.new("TextButton")
+ResizeHandle.Name = "ResizeHandle"
+ResizeHandle.Size = UDim2.new(0, 20, 0, 20)
+ResizeHandle.Position = UDim2.new(1, -20, 1, -20)
+ResizeHandle.BackgroundTransparency = 1
+ResizeHandle.Text = "◢"
+ResizeHandle.TextColor3 = Color3.fromRGB(60, 60, 70)
+ResizeHandle.TextSize = 15
+ResizeHandle.ZIndex = 15
+ResizeHandle.Parent = Main
+
+local Header = Instance.new("Frame")
+Header.Name = "Header"
+Header.Size = UDim2.new(1, 0, 0, 40)
+Header.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+Header.BorderSizePixel = 0
+Header.Active = true
+Header.Parent = Main
+Instance.new("UICorner", Header)
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -50, 1, 0)
+Title.Position = UDim2.new(0, 15, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "📊 PLAYER KILL MONITOR"
+Title.Font = Enum.Font.GothamBold
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 13
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Header
+
+local Close = Instance.new("TextButton")
+Close.Size = UDim2.new(0, 30, 0, 30)
+Close.Position = UDim2.new(1, -35, 0, 5)
+Close.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+Close.BackgroundTransparency = 1
+Close.Text = "×"
+Close.TextColor3 = Color3.fromRGB(255, 100, 100)
+Close.TextSize = 30
+Close.Font = Enum.Font.GothamBold
+Close.ZIndex = 10 
+Close.Parent = Header
+
+local Scroll = Instance.new("ScrollingFrame")
+Scroll.Size = UDim2.new(1, -10, 1, -50)
+Scroll.Position = UDim2.new(0, 5, 0, 45)
+Scroll.BackgroundTransparency = 1
+Scroll.ScrollBarThickness = 2
+Scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+Scroll.Parent = Main
+local Layout = Instance.new("UIListLayout", Scroll)
+Layout.Padding = UDim.new(0, 6)
+Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local dragging, dragInput, dragStart, startPos
+
+Header.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = Main.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then dragging = false end
+		end)
+	end
+end)
+
+local resizing = false
+local resStartPos, resStartSize
+
+ResizeHandle.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		resizing = true
+		resStartPos = input.Position
+		resStartSize = Main.AbsoluteSize
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then resizing = false end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		if dragging then
+			local delta = input.Position - dragStart
+			local newX = startPos.X.Offset + delta.X
+			local newY = startPos.Y.Offset + delta.Y
+			
+			newX = math.clamp(newX, 0, screen.X - Main.AbsoluteSize.X)
+			newY = math.clamp(newY, 0, screen.Y - Main.AbsoluteSize.Y)
+			
+			Main.Position = UDim2.new(startPos.X.Scale, newX, startPos.Y.Scale, newY)
+		elseif resizing then
+			local delta = input.Position - resStartPos
+			local newSizeX = math.clamp(resStartSize.X + delta.X, screen.X * 0.25, screen.X - Main.AbsolutePosition.X)
+			local newSizeY = math.clamp(resStartSize.Y + delta.Y, screen.Y * 0.25, screen.Y - Main.AbsolutePosition.Y)
+			
+			Main.Size = UDim2.new(0, newSizeX, 0, newSizeY)
+		end
+	end
+end)
+
+local function AddPlayerCard(p)
+    local card = Instance.new("Frame", Scroll)
+    card.Size = UDim2.new(0.95, 0, 0, 45)
+    card.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 6)
+
+    local nameText = Instance.new("TextLabel", card)
+    nameText.Size = UDim2.new(0.7, 0, 1, 0)
+    nameText.Position = UDim2.new(0.05, 0, 0, 0)
+    nameText.BackgroundTransparency = 1
+    nameText.RichText = true
+    nameText.Text = p.DisplayName .. " <font color='#777'>(@" .. p.Name .. ")</font>"
+    nameText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    nameText.Font = Enum.Font.Gotham
+    nameText.TextSize = 12
+    nameText.TextXAlignment = Enum.TextXAlignment.Left
+
+    local killText = Instance.new("TextLabel", card)
+    killText.Size = UDim2.new(0.2, 0, 1, 0)
+    killText.Position = UDim2.new(0.75, 0, 0, 0)
+    killText.BackgroundTransparency = 1
+    killText.Text = "0"
+    killText.TextColor3 = Color3.fromRGB(0, 255, 127)
+    killText.Font = Enum.Font.GothamBold
+    killText.TextSize = 16
+
+    task.spawn(function()
+        while card.Parent do
+            pcall(function()
+                local config = p:FindFirstChild("Configuration")
+                local rep = config and config:FindFirstChild("Reputation")
+                killText.Text = tostring(rep and rep:GetAttribute("TotalKills") or 0)
+            end)
+            task.wait(1.5)
+        end
+    end)
+end
+
+for _, p in pairs(Players:GetPlayers()) do AddPlayerCard(p) end
+Players.PlayerAdded:Connect(AddPlayerCard)
+Close.MouseButton1Click:Connect(function() UI:Destroy() end)
+Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    Scroll.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y)
+end)

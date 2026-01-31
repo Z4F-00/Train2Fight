@@ -1,0 +1,98 @@
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local touchFrame = player.PlayerGui:WaitForChild("MainGui").ControllerFrame.TouchFrame
+local jumpBtnArea = touchFrame:WaitForChild("JumpBtnArea")
+
+local fullPath = "Z4F Script/Train to Fight/Assets/Invisibility_Button.png"
+local githubUrl = "https://raw.githubusercontent.com/Z4F-00/Train2Fight/refs/heads/main/Assets/Invisibility%20Button.png"
+
+if not isfile(fullPath) then
+    pcall(function() flexibleWrite(fullPath, game:HttpGet(githubUrl)) end)
+end
+
+if touchFrame:FindFirstChild("InvisibilityBtnArea") then touchFrame.InvisibilityBtnArea:Destroy() end
+local invBtnArea = jumpBtnArea:Clone()
+invBtnArea.Name = "InvisibilityBtnArea"
+invBtnArea.Parent = touchFrame
+invBtnArea.Position = UDim2.new(0.268, 0, 0.68, 0)
+local invBtn = invBtnArea:WaitForChild("JumpBtn")
+local normalState = invBtn:WaitForChild("ContentFrame"):WaitForChild("NormalState")
+if isfile(fullPath) then normalState.Image = getcustomasset(fullPath) end
+
+local isInvisible = false
+local skyHeight = 10000 
+local cameraAnchor = nil
+local skyPlatform = nil
+local loopConn = nil
+
+local function toggleInvisibility(enable)
+    character = player.Character or player.CharacterAdded:Wait()
+    local root = character:FindFirstChild("HumanoidRootPart")
+    local hum = character:FindFirstChildOfClass("Humanoid")
+    local camera = workspace.CurrentCamera
+    
+    if not root or not hum then return end
+
+    if enable then
+        local groundY = root.Position.Y
+        
+        local verticalOffset = hum.HipHeight + (root.Size.Y / 2) + 0.5
+
+        cameraAnchor = Instance.new("Part")
+        cameraAnchor.Name = "Z4F_CameraAnchor"
+        cameraAnchor.Size = root.Size
+        cameraAnchor.Transparency = 1
+        cameraAnchor.CanCollide = false
+        cameraAnchor.Anchored = true
+        cameraAnchor.CFrame = root.CFrame
+        cameraAnchor.Parent = workspace
+
+        skyPlatform = Instance.new("Part")
+        skyPlatform.Name = "Z4F_SkyPlatform"
+        skyPlatform.Size = Vector3.new(50, 1, 50)
+        skyPlatform.Transparency = 1
+        skyPlatform.Anchored = true
+        skyPlatform.Parent = workspace
+
+        root.CFrame = root.CFrame * CFrame.new(0, skyHeight, 0)
+        camera.CameraSubject = cameraAnchor
+
+        loopConn = RunService.RenderStepped:Connect(function()
+            if isInvisible and root and cameraAnchor and skyPlatform then
+                local currentPos = root.Position
+                
+                new(currentPos.X, groundY, currentPos.Z)
+                cameraAnchor.Rotation = root.Rotation
+                
+                skyPlatform.Position = Vector3.new(currentPos.X, currentPos.Y - verticalOffset, currentPos.Z)
+            end
+        end)
+    else
+        if loopConn then loopConn:Disconnect() end
+        if cameraAnchor and root then
+            root.CFrame = cameraAnchor.CFrame * CFrame.new(0, 3, 0)
+        end
+        camera.CameraSubject = hum
+        if cameraAnchor then cameraAnchor:Destroy() end
+        if skyPlatform then skyPlatform:Destroy() end
+        root.Velocity = Vector3.new(0, 0, 0)
+    end
+end
+
+
+invBtn.MouseButton1Click:Connect(function()
+    isInvisible = not isInvisible
+    toggleInvisibility(isInvisible)
+    normalState.ImageTransparency = isInvisible and 0.5 or 0
+end)
+
+player.CharacterAdded:Connect(function()
+    if loopConn then loopConn:Disconnect() end
+    if cameraAnchor then cameraAnchor:Destroy() end
+    if skyPlatform then skyPlatform:Destroy() end
+    isInvisible = false
+end)

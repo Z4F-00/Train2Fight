@@ -1,0 +1,60 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local Area = {
+	workspace:WaitForChild("Area"):WaitForChild("PlayerArea"):WaitForChild("S2")
+}
+
+local Remote = game:GetService("ReplicatedStorage"):WaitForChild("Area"):WaitForChild("Remote")
+local PlayerAreaOut = Remote:WaitForChild("PlayerAreaOut")
+local PlayerAreaIn = Remote:WaitForChild("PlayerAreaIn")
+
+function invokePVP(PVPType)
+	if PVPType then
+		PlayerAreaOut:InvokeServer(unpack(Area))
+	else
+		PlayerAreaIn:InvokeServer(unpack(Area))
+	end
+end
+
+local pvpAreaGui = PlayerGui:WaitForChild("SafeAreaGui"):WaitForChild("ContentFrame")
+local pvpAreaGuiOn = pvpAreaGui:WaitForChild("On")
+local pvpAreaGuiOff = pvpAreaGui:WaitForChild("Off")
+
+repeat task.wait() until _G.SetSetting
+
+local path = "Z4F Script/Train to Fight/Settings"
+
+local function createInSafeAreaGui(parentName)
+    local pvpAreaBg = parentName:WaitForChild("Bg")
+    
+	local clickButton = Instance.new("TextButton")
+	clickButton.Name = "ButtonArea"
+	clickButton.AnchorPoint = Vector2.new(0.5, 0.5)
+	clickButton.Size = UDim2.new(pvpAreaBg.Size.X.Scale, pvpAreaBg.Size.X.Offset, pvpAreaBg.Size.Y.Scale * 3, pvpAreaBg.Size.Y.Offset)
+	clickButton.Position = pvpAreaBg.Position
+	clickButton.BackgroundTransparency = 1
+	clickButton.Text = ""
+	clickButton.Parent = parentName
+
+	clickButton.MouseButton1Click:Connect(function()
+		local currentStatus = pvpAreaGuiOn.Visible
+        local nextStatus = not currentStatus
+        
+		invokePVP(nextStatus)
+        _G.SetSetting(path, "PVP", nextStatus)
+        pvpAreaGuiOn.Visible = nextStatus
+	end)
+end
+
+local getButtonPVPAreaGuiOn = pvpAreaGuiOn:FindFirstChild("ButtonArea")
+local getButtonPVPAreaGuiOff = pvpAreaGuiOff:FindFirstChild("ButtonArea")
+
+if not getButtonPVPAreaGuiOn then
+	createInSafeAreaGui(pvpAreaGuiOn)
+end
+
+if not getButtonPVPAreaGuiOff then
+	createInSafeAreaGui(pvpAreaGuiOff)
+end
