@@ -208,6 +208,7 @@ local function createTag(player)
     powerArea.Parent = billboard
     
     if powerArea:FindFirstChild("PowerButton") then
+        powerArea.PowerButton.PowerNum.AutoLocalize = false
         powerArea.PowerButton.Size = UDim2.new(1, 0, 1, 0)
         powerArea.PowerButton.Position = UDim2.new(0.5, 0, 0.5, 0)
         powerArea.PowerButton.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -225,6 +226,7 @@ local function createTag(player)
     end
     
     if respectArea:FindFirstChild("ReputationButton") then
+        respectArea.ReputationButton.Num.AutoLocalize = false
         respectArea.ReputationButton.Size = UDim2.new(1, 0, 1, 0)
         respectArea.ReputationButton.Position = UDim2.new(0.5, 0, 0.5, 0)
         respectArea.ReputationButton.AnchorPoint = Vector2.new(0.5, 0.5)
